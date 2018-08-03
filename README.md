@@ -32,7 +32,7 @@ Latex的安装和配置就不说了，网上有很多资料。
 
 # 命令
 ```bash
-$ python Manual.py
+$ sh a.sh
 ```
 
 # Update
