@@ -1,16 +1,11 @@
 // ---
 // $O(\log n)$查询和修改数组的前缀和
 // ---
-// 注意下标应从1开始 n是全局变量
-const int maxn = "Edit";
-int bit[N], n;
-int sum(int x)
-{
-    int s = 0;
-    for (int i = x; i; i -= i & -i) s += bit[i];
-    return s;
-}
-void add(int x, int v)
-{
-    for (int i = x; i <= n; i += i & -i) bit[i] += v;
-}
+// 注意下标应从1开始
+const int MAXN=100000;
+struct BIT{
+    int n,c[MAXN<<1];
+    void init(int _n){n=_n;for(int i=0;i<=n;i++)c[i]=0;}
+    void add(int i,int v){for(;i<=n;i+=i&-i)c[i]+=v;}
+    int sum(int i){int s=0;for(;i>0;i-=i&-i)s+=c[i];return s;}
+}bit;
