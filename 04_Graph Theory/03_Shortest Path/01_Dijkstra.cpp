@@ -1,56 +1,66 @@
-struct HeapNode
-{
-    int d, u;
-    bool operator<(const HeapNode& rhs) const
-    {
-        return d > rhs.d;
-    }
-};
-const int maxn = "Edit";
-struct Dijkstra
-{
-    int n, m;            // 点数和边数
-    vector<Edge> edges;  // 边列表
-    vector<int> G[maxn]; // 每个节点出发的边编号（从0开始编号）
-    bool done[maxn];     // 是否已永久标号
-    int d[maxn];         // s到各点的距离
-    int p[maxn];         // 最短路中的一条边
-    void init(int n)
-    {
-        this->n = n;
-        for (int i = 0; i < n; i++) G[i].clear(); // 清空邻接表
-        edges.clear();                            // 清空边表
-    }
-    void AddEdge(int from, int to, int dist)
-    { // 如果是无向图，每条无向边需调用两次AddEdge
-        edges.emplace_back(from, to, dist);
-        m = edges.size();
-        G[from].push_back(m - 1);
-    }
-    void dijkstra(int s)
-    {
-        priority_queue<HeapNode> q;
-        for (int i = 0; i < n; i++) d[i] = INF;
-        d[s] = 0;
-        memset(done, 0, sizeof(done));
-        q.push({0, s});
-        while (!q.empty())
-        {
-            HeapNode x = q.top();
-            q.pop();
-            int u = x.u;
-            if (done[u]) continue;
-            done[u] = true;
-            for (auto& id : G[u])
-            {
-                Edge& e = edges[id];
-                if (d[e.to] > d[u] + e.dist)
-                {
-                    d[e.to] = d[u] + e.dist;
-                    p[e.to] = id;
-                    q.push({d[e.to], e.to});
-                }
+//cf 610 A
+#include<bits/stdc++.h>
+using namespace std;
+const int INF=1e9;
+const int MAXV=5e3+50;
+const int MAXE=1e5+50;
+int V;
+struct edge{int to,cost;};
+vector<edge> G[MAXV];
+typedef pair<int,int> P;
+int d[MAXV];
+void dijkstra(int s){
+    priority_queue<P,vector<P>,greater<P> > que;
+    fill(d,d+V+1,INF);
+    d[s]=0;
+    que.push(P(0,s));
+    while(!que.empty()){
+        P t=que.top();
+        que.pop();
+        int v=t.second;
+        if(d[v]<t.first)continue;
+        for(int i=0;i<G[v].size();i++){
+            edge e=G[v][i];
+            if(d[e.to]>d[v]+e.cost){
+                d[e.to]=d[v]+e.cost;
+                que.push(P(d[e.to],e.to));
             }
         }
     }
-};
+}
+int mat[405][405];
+int main(){
+    int n,m;
+    scanf("%d%d",&n,&m);
+    V=n;
+    for(int i=1;i<=m;i++){
+        int u,v;
+        scanf("%d%d",&u,&v);
+        G[u].push_back(edge{v,1});
+        G[v].push_back(edge{u,1});
+        mat[u][v]=mat[v][u]=1;
+    }
+    dijkstra(1);
+    int ans;
+    if(d[n]==INF){
+        printf("-1");
+        return 0;
+    }
+    ans=d[n];
+    for(int i=1;i<=n;i++)G[i].clear();
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=n;j++){
+            if(i==j)continue;
+            if(mat[i][j]==0){
+                G[i].push_back(edge{j,1});
+            }
+        }
+    }
+    dijkstra(1);
+    if(d[n]==INF){
+        printf("-1");
+        return 0;
+    }
+    printf("%d",max(ans,d[n]));
+    return 0;
+}
