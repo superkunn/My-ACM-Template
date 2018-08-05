@@ -927,28 +927,28 @@ $$\sum_{i=1}^n i^k = \frac{1}{k+1} \sum_{i=1}^{k+1}C_{k+1}^i B_{k+1-i}(n+1)^i$$
 \clearpage\section{String Processing}
 \subsection{KMP}
 \begin{lstlisting}
-// 返回y中x的个数
-const int N = "Edit";
-int next[N];
-void initkmp(char x[], int m)
-{
-    int i = 0, j = next[0] = -1;
-    while (i < m)
-    {
-        while (j != -1 && x[i] != x[j]) j = next[j];
-        next[++i] = ++j;
+//MAXN
+int nxt[MAXN];
+void initkmp(char x[],int m){
+    int i=0,j=nxt[0]=-1;
+    while(i<m){
+        while(j!=-1&&x[i]!=x[j])j=nxt[j];
+        nxt[++i]=++j;
     }
 }
-int kmp(char x[], int m, char y[], int n)
-{
-    int i, j, ans;
-    i = j = ans = 0;
-    initkmp(x, m);
-    while (i < n)
-    {
-        while (j != -1 && y[i] != x[j]) j = next[j];
-        i++, j++;
-        if (j >= m) ans++, j = next[j];
+//x:pa y:tx 
+int kmp(char x[],int m,char y[],int n){
+    int i,j,ans;
+    i=j=ans=0;
+    initkmp(x,m);
+    while(i<n){
+        while(j!=-1&&y[i]!=x[j])j=nxt[j];
+        i++,j++;
+        if(j>=m){
+            ans++;
+            j=nxt[j];
+            //pos:i-m
+        }
     }
     return ans;
 }
@@ -1215,6 +1215,36 @@ struct SAM
         for (int i = 0; i < sz; i++) topsam[--topcnt[len[i]]] = i;
     }
 };
+\end{lstlisting}
+\subsection{HashString}
+\begin{lstlisting}
+const ll B1=1e7+7;
+const ll B2=1e9+7;
+char pa[10004];
+char tx[1000006];
+int work(){
+    int T;
+    scanf("%d",&T);
+    while(T--){
+        scanf("%s%s",pa,tx);
+        int pl=strlen(pa);
+        int tl=strlen(tx);
+        ll w=1;
+        rep(i,1,pl)w=(w*B1)%B2;
+        ll ph=0,th=0;
+        rep(i,0,pl-1){
+            ph=(ph*B1+pa[i])%B2;
+            th=(th*B1+tx[i])%B2;
+        }
+        int ans=0;
+        for(int i=0;i+pl<=tl;i++){
+            if(ph==th)ans++;
+            if(i+pl<tl)th=(th*B1+tx[i+pl]-tx[i]*w)%B2;
+        }
+        printf("%d\n",ans);
+    }
+    return 0;
+}
 \end{lstlisting}
 \clearpage\section{Data Structure}
 \subsection{Binary Indexed Tree}
