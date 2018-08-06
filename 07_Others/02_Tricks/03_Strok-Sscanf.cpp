@@ -1,9 +1,8 @@
-// 空格作为分隔输入,读取一行的整数
+// get some integers in a line
 gets(buf);
 int v;
 char *p = strtok(buf, " ");
-while (p)
-{
+while (p){
     sscanf(p, "%d", &v);
     p = strtok(NULL," ");
 }
