@@ -1005,31 +1005,43 @@ void ekmp(char x[], int m, char y[], int n)
 \end{lstlisting}
 \subsection{Manacher}
 \begin{lstlisting}
-\end{lstlisting}
-O(n)求解最长回文子串
-\begin{lstlisting}
-const int N = "Edit";
-char s[N], str[N << 1];
-int p[N << 1];
-void Manacher(char s[], int& n)
-{
-    str[0] = '$', str[1] = '#';
-    for (int i = 0; i < n; i++) str[(i << 1) + 2] = s[i], str[(i << 1) + 3] = '#';
-    n = 2 * n + 2;
-    str[n] = 0;
-    int mx = 0, id;
-    for (int i = 1; i < n; i++)
-    {
-        p[i] = mx > i ? min(p[2 * id - i], mx - i) : 1;
-        while (str[i - p[i]] == str[i + p[i]]) p[i]++;
-        if (p[i] + i > mx) mx = p[i] + i, id = i;
+const int MAXN=3e5;//more than two times
+char s[MAXN],str[MAXN];
+int len1,len2,p[MAXN];
+void init(){
+    str[0]='$';
+    str[1]='#';
+    rep(i,0,len1-1){
+        str[i*2+2]=s[i];
+        str[i*2+3]='#';
+    }
+    len2=len1*2+2;
+    str[len2]='*';
+}
+void manacher(){
+    int id=0,mx=0;
+    rep(i,1,len2-1){
+        if(mx>i)p[i]=min(p[2*id-i],mx-i);
+        else p[i]=1;
+        while(str[i+p[i]]==str[i-p[i]])p[i]++;
+        if(p[i]+i>mx){
+            mx=p[i]+i;
+            id=i;
+        }
     }
 }
-int solve(char s[])
-{
-    int n = strlen(s);
-    Manacher(s, n);
-    return *max_elememt(p, p + n) - 1;
+int work(){
+    while(scanf("%s",s)!=EOF){
+        len1=strlen(s);
+        init();
+        manacher();
+        int ans=0;
+        rep(i,0,len2-1){
+            ans=max(ans,p[i]);
+        }
+        printf("%d\n",ans-1);
+    }
+    return 0;
 }
 \end{lstlisting}
 \subsection{Aho-Corasick Automaton}
@@ -3378,15 +3390,12 @@ void gauss()
 \subsection{Tricks}
 \subsubsection{Stack-Overflow}
 \begin{lstlisting}
-// 解决爆栈问题
 #pragma comment(linker, "/STACK:1024000000,1024000000")
 \end{lstlisting}
 \subsubsection{Fast-Scanner}
 \begin{lstlisting}
-// 适用于正负整数
 template <class T>
-inline bool scan_d(T &ret)
-{
+inline bool scan_d(T &ret){
     char c;
     int sgn;
     if (c = getchar(), c == EOF) return 0; //EOF
@@ -3397,20 +3406,18 @@ inline bool scan_d(T &ret)
     ret *= sgn;
     return 1;
 }
-inline void out(int x)
-{
+inline void out(int x){
     if (x > 9) out(x / 10);
     putchar(x % 10 + '0');
 }
 \end{lstlisting}
 \subsubsection{Strok-Sscanf}
 \begin{lstlisting}
-// 空格作为分隔输入,读取一行的整数
+// get some integers in a line
 gets(buf);
 int v;
 char *p = strtok(buf, " ");
-while (p)
-{
+while (p){
     sscanf(p, "%d", &v);
     p = strtok(NULL," ");
 }
@@ -3479,244 +3486,60 @@ int main(){
 \subsection{BigNum}
 \subsubsection{High-precision}
 \begin{lstlisting}
-// 加法 乘法 小于号 输出
-struct bint
-{
-    int l;
-    short int w[100];
-    bint(int x = 0)
-    {
-        l = x == 0, clr(w, 0);
-        while (x) w[l++] = x % 10, x /= 10;
-    }
-    bool operator<(const bint& x) const
-    {
-        if (l != x.l) return l < x.l;
-        int i = l - 1;
-        while (i >= 0 && w[i] == x.w[i]) i--;
-        return (i >= 0 && w[i] < x.w[i]);
-    }
-    bint operator+(const bint& x) const
-    {
-        bint ans;
-        ans.l = l > x.l ? l : x.l;
-        for (int i = 0; i < ans.l; i++)
-        {
-            ans.w[i] += w[i] + x.w[i];
-            ans.w[i + 1] += ans.w[i] / 10;
-            ans.w[i] = ans.w[i] % 10;
-        }
-        if (ans.w[ans.l] != 0) ans.l++;
-        return ans;
-    }
-    bint operator*(const bint& x) const
-    {
-        bint res;
-        int up, tmp;
-        for (int i = 0; i < l; i++)
-        {
-            up = 0;
-            for (int j = 0; j < x.l; j++)
-            {
-                tmp = w[i] * x.w[j] + res.w[i + j] + up;
-                res.w[i + j] = tmp % 10;
-                up = tmp / 10;
-            }
-            if (up != 0) res.w[i + x.l] = up;
-        }
-        res.l = l + x.l;
-        while (res.w[res.l - 1] == 0 && res.l > 1) res.l--;
-        return res;
-    }
-    void print()
-    {
-        for (int i = l - 1; ~i; i--) printf("%d", w[i]);
-        puts("");
-    }
-};
-\end{lstlisting}
-\subsubsection{Complete High-precision}
-\begin{lstlisting}
-#define N 10000
-class bint
-{
-private:
-    int a[N]; // 用 N 控制最大位数
-    int len;  // 数字长度
-public:
-    // 构造函数
-    bint() { len = 1, clr(a, 0); }
-    // int -> bint
-    bint(int n)
-    {
-        len = 0;
-        clr(a, 0);
-        int d = n;
-        while (n)
-            d = n / 10 * 10, a[len++] = n - d, n = d / 10;
-    }
-    // char[] -> int
-    bint(const char s[])
-    {
-        clr(a, 0);
-        len = 0;
-        int l = strlen(s);
-        for (int i = l - 1; ~i; i--) a[len++] = s[i];
-    }
-    // 拷贝构造函数
-    bint(const bint& b)
-    {
-        clr(a, 0);
-        len = b.len;
-        for (int i = 0; i < len; i++) a[i] = b.a[i];
-    }
-    // 重载运算符 bint = bint
-    bint& operator=(const bint& n)
-    {
-        len = n.len;
-        for (int i = 0; i < len; i++) a[i] = n.a[i];
-        return *this;
-    }
-    // 重载运算符 bint + bint
-    bint operator+(const bint& b) const
-    {
-        bint t(*this);
-        int res = b.len > len ? b.len : len;
-        for (int i = 0; i < res; i++)
-        {
-            t.a[i] += b.a[i];
-            if (t.a[i] >= 10) t.a[i + 1]++, t.a[i] -= 10;
-        }
-        t.len = res + a[res] == 0;
-        return t;
-    }
-    // 重载运算符 bint - bint
-    bint operator-(const bint& b) const
-    {
-        bool f = *this > b;
-        bint t1 = f ? *this : b;
-        bint t2 = f ? b : *this;
-        int res = t1.len, j;
-        for (int i = 0; i < res; i++)
-            if (t1.a[i] < t2.a[i])
-            {
-                j = i + 1;
-                while (t1.a[j] == 0) j++;
-                t1.a[j--]--;
-                while (j > i) t1.a[j--] += 9;
-                t1.a[i] += 10 - t1.a[i];
-            }
-            else
-                t1.a[i] -= t2.a[i];
-        t1.len = res;
-        while (t1.a[len - 1] == 0 && t1.len > 1) t1.len--, res--;
-        if (f) t1.a[res - 1] = 0 - t1.a[res - 1];
-        return t1;
-    }
-    // 重载运算符 bint * bint
-    bint operator*(const bint& b) const
-    {
-        bint t;
-        int i, j, up, tmp, tmp1;
-        for (i = 0; i < len; i++)
-        {
-            up = 0;
-            for (j = 0; j < b.len; j++)
-            {
-                tmp = a[i] * b.a[j] + t.a[i + j] + up;
-                if (tmp > 9)
-                    tmp1 = tmp - tmp / 10 * 10, up = tmp / 10, t.a[i + j] = tmp1;
-                else
-                    up = 0, t.a[i + j] = tmp;
-            }
-            if (up) t.a[i + j] = up;
-        }
-        t.len = i + j;
-        while (t.a[t.len - 1] == 0 && t.len > 1) t.len--;
-        return t;
-    }
-    // 重载运算符 bint / int
-    bint operator/(const int& b) const
-    {
-        bint t;
-        int down = 0;
-        for (int i = len - 1; ~i; i--)
-            t.a[i] = (a[i] + down * 10) / b, down = a[i] + down * 10 - t.a[i] * b;
-        t.len = len;
-        while (t.a[t.len - 1] == 0 && t.len > 1) t.len--;
-        return t;
-    }
-    // 重载运算符 bint ^ n (n次方快速幂, 需保证n非负)
-    bint operator^(const int n) const
-    {
-        bint t(*this), rt(1);
-        if (n == 0) return 1;
-        if (n == 1) return *this;
-        int m = n;
-        for (; m; m >>= 1, t = t * t)
-            if (m & 1) rt = rt * t;
-        return rt;
-    }
-    // 重载运算符 bint > bint 比较大小
-    bool operator>(const bint& b) const
-    {
-        int p;
-        if (len > b.len) return 1;
-        if (len == b.len)
-        {
-            p = len - 1;
-            while (a[p] == b.a[p] && p >= 0) p--;
-            return p >= 0 && a[p] > b.a[p];
-        }
-        return 0;
-    }
-    // 重载运算符 bint > int 比较大小
-    bool operator>(const int& n) const { return *this > bint(n); }
-    // 输出
-    void out()
-    {
-        for (int i = len - 1; ~i; i--) printf("%d", a[i]);
-        puts("");
-    }
-};
+java
 \end{lstlisting}
 \subsection{VIM}
 \begin{lstlisting}
 syntax on
-set cindent
 set nu
 set tabstop=4
 set shiftwidth=4
-set background=dark
+set cin
 set mouse=a
 
-map<C-A> ggvG"+y
-map<F5> :call Run()<CR>
-
-func! Run()
-    exec "w"
-    exec "!g++ -std=c++11 -O2 % -o %<"
-    exec "!time ./%<"
-endfunc
-
-autocmd BufNewFile *.cpp 0r ~/include.cpp
-autocmd BufNewFile *.cpp normal G
-
-inoremap ( ()<Esc>i
-inoremap [ []<Esc>i
-inoremap { {<CR>}<Esc>O
-inoremap ' ''<Esc>i
-inoremap " ""<Esc>i
-
-inoremap ) <c-r>=ClosePair(')')<CR>
-inoremap ] <c-r>=ClosePair(']')<CR>
-
-func ClosePair(char)
-	if getline('.')[col('.')-1]==a:char
-		return "\<Right>"
-	else
-		return a:char
-	endif
+map<F2> :call SetTitle()<CR>
+map<F3> :call setline(1,'')<CR>
+func SetTitle()
+let l = 0
+let l = l + 1 | call setline(l,'#define superkunn')
+let l = l + 1 | call setline(l,'#include <algorithm>')
+let l = l + 1 | call setline(l,'#include  <iostream>')
+let l = l + 1 | call setline(l,'#include   <cstring>')
+let l = l + 1 | call setline(l,'#include    <string>')
+let l = l + 1 | call setline(l,'#include    <cstdio>')
+let l = l + 1 | call setline(l,'#include    <vector>')
+let l = l + 1 | call setline(l,'#include    <cstdio>')
+let l = l + 1 | call setline(l,'#include    <vector>')
+let l = l + 1 | call setline(l,'#include     <stack>')
+let l = l + 1 | call setline(l,'#include     <queue>')
+let l = l + 1 | call setline(l,'#include     <cmath>')
+let l = l + 1 | call setline(l,'#include       <set>')
+let l = l + 1 | call setline(l,'#include       <map>')
+let l = l + 1 | call setline(l,'using namespace std;')
+let l = l + 1 | call setline(l,'#define rep(i,a,b) for(int i=a;i<=b;i++)')
+let l = l + 1 | call setline(l,'#define per(i,a,b) for(int i=a;i>=b;i--)')
+let l = l + 1 | call setline(l,'#define pb push_back')
+let l = l + 1 | call setline(l,'#define mp make_pair')
+let l = l + 1 | call setline(l,'#define all(x) (x).begin(),(x).end()')
+let l = l + 1 | call setline(l,'#define fi first')
+let l = l + 1 | call setline(l,'#define se second')
+let l = l + 1 | call setline(l,'#define SZ(x) ((int)(x).size())')
+let l = l + 1 | call setline(l,'typedef unsigned long long ull;')
+let l = l + 1 | call setline(l,'typedef long long ll;')
+let l = l + 1 | call setline(l,'typedef vector<int> vi;')
+let l = l + 1 | call setline(l,'typedef pair<int,int> pii;')
+let l = l + 1 | call setline(l,'/*************head******************/')
+let l = l + 1 | call setline(l,'int work(){')
+let l = l + 1 | call setline(l,'')
+let l = l + 1 | call setline(l,'    return 0;')
+let l = l + 1 | call setline(l,'}')
+let l = l + 1 | call setline(l,'int main(){')
+let l = l + 1 | call setline(l,'#ifdef superkunn')
+let l = l + 1 | call setline(l,'    freopen("input.txt","rt",stdin);')
+let l = l + 1 | call setline(l,'#endif')
+let l = l + 1 | call setline(l,'    work();')
+let l = l + 1 | call setline(l,'    return 0;')
+let l = l + 1 | call setline(l,'}')
 endfunc
 \end{lstlisting}
 
