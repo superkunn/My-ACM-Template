@@ -1,7 +1,5 @@
-// 适用于正负整数
 template <class T>
-inline bool scan_d(T &ret)
-{
+inline bool scan_d(T &ret){
     char c;
     int sgn;
     if (c = getchar(), c == EOF) return 0; //EOF
@@ -12,8 +10,7 @@ inline bool scan_d(T &ret)
     ret *= sgn;
     return 1;
 }
-inline void out(int x)
-{
+inline void out(int x){
     if (x > 9) out(x / 10);
     putchar(x % 10 + '0');
 }
