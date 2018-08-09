@@ -11,6 +11,10 @@ inline bool scan_d(T &ret){
     return 1;
 }
 inline void out(int x){
+    if(x<0){
+        putchar('-');
+        x=-x;
+    }
     if (x > 9) out(x / 10);
     putchar(x % 10 + '0');
 }
