@@ -1,28 +1,4 @@
-// ---
-// 静态查询区间第$k$小的值\\
-// 必要时进行离散化
-// ---
 //poj 2104
-#include<cstdio>
-#include<iostream>
-#include<cmath>
-#include<queue>
-#include<stack>
-#include<set>
-#include<map>
-#include<algorithm>
-#include<vector>
-#include<string>
-#include<cstring>
-using namespace std;
-#define rep(i,a,b) for(int i=a;i<=b;i++)
-#define per(i,a,b) for(int i=a;i>=b;i--)
-#define pb push_back
-#define mp make_pair
-#define all(x) (x).begin(),(x).end()
-typedef long long ll;
-typedef vector<int> vi;
-typedef pair<int,int> pii;
 const int MAXN=1e5+6;
 int n,m,cnt,x,y,k,root[MAXN],a[MAXN];
 struct node{int l,r,sum;}T[MAXN*40];
@@ -54,10 +30,4 @@ int work(){
     rep(i,1,m)scanf("%d%d%d",&x,&y,&k),printf("%d\n",v[query(1,n,root[x-1],root[y],k)-1]);
     return 0;
 }
-int main(){
-#ifdef superkunn
-    freopen("input.txt","rt",stdin);
-#endif
-    work();
-    return 0;
-}
+
