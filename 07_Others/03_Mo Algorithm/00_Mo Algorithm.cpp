@@ -1,6 +1,3 @@
-// ---
-// 莫队算法,可以解决一类静态,离线区间查询问题。分成 $\sqrt{x}$ 块,分块排序。
-// ---
 //cf 671 E
 #include <bits/stdc++.h>
 using namespace std;
