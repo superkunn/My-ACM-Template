@@ -7,6 +7,7 @@ TexHead = r"""
 \documentclass[twoside]{article}
 \usepackage[colorlinks,linkcolor=black]{hyperref}
 \usepackage{xeCJK}
+\usepackage{CJKutf8}
 \usepackage{fancyhdr}
 \usepackage{amsmath, amsthm}
 \usepackage{listings,xcolor}
