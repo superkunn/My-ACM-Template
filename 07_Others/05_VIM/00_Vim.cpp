@@ -5,7 +5,7 @@ set shiftwidth=4
 set cin
 set mouse=a
 
-map<F3> :call setline(1,'')<CR>
+map<F2> :call SetTitle()<CR>
 func SetTitle()
 let l = 0
 let l = l + 1 | call setline(l,'#include <algorithm>')
