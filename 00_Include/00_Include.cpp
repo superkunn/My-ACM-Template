@@ -1,27 +1,40 @@
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
+#include <algorithm>
+#include  <iostream>
+#include   <cstring>
+#include    <string>
+#include    <cstdio>
+#include    <vector>
+#include    <cstdio>
+#include    <vector>
+#include     <stack>
+#include     <queue>
+#include     <cmath>
+#include       <set>
+#include       <map>
 using namespace std;
-#define clr(a, x) memset(a, x, sizeof(a))
-#define mp(x, y) make_pair(x, y)
-#define pb(x) push_back(x)
-#define X first
-#define Y second
-#define fastin                    \
-    ios_base::sync_with_stdio(0); \
-    cin.tie(0);
+#define rep(i,a,b) for(int i=a;i<=b;i++)
+#define per(i,a,b) for(int i=a;i>=b;i--)
+#define clr(a,x) memset(a,x,sizeof(a))
+#define pb push_back
+#define mp make_pair
+#define all(x) (x).begin(),(x).end()
+#define fi first
+#define se second
+#define SZ(x) ((int)(x).size())
+typedef unsigned long long ull;
 typedef long long ll;
-typedef long double ld;
-typedef pair<int, int> PII;
-typedef vector<int> VI;
-const int INF = 0x3f3f3f3f;
-const int mod = 1e9 + 7;
-const double eps = 1e-6;
-
-int main()
-{
-#ifndef ONLINE_JUDGE
-    freopen("test.in", "r", stdin);
-    freopen("test.out", "w", stdout);
-#endif
+typedef vector<int> vi;
+typedef pair<int,int> pii;
+/*************head******************/
+int work(){
     
+    return 0;
+}
+int main(){
+#ifdef superkunn
+    freopen("input.txt","rt",stdin);
+#endif
+    work();
     return 0;
 }
