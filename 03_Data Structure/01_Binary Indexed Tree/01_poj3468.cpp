@@ -1,6 +1,6 @@
 // $a_{i}=\sum_{i=1}^{x}d_{i}$
-// $\sum_{i=1}^{x}a_{i}=\sum_{i=1}^{x}\sum_{j=1}^{i}d_{j}=\sum_{i=1}^{x}(x-i+1)d_{i}$
-// $\sum_{i=1}^{x}a_{i}=(x+1)\sum_{i=1}^{x}d_{i}-\sum_{i=1}^{x}d_{i}\times&space;i$
+// $\sum_{i=1}^{x}a_{i}=\sum_{i=1}^{x}\sum_{j=1}^{i}d_{j}=\sum_{i=1}^{x}(x-i+1)d_{i}$\\
+// $\sum_{i=1}^{x}a_{i}=(x+1)\sum_{i=1}^{x}d_{i}-\sum_{i=1}^{x}d_{i}\times&space;i$\\
 const int MAXN=1e5+5;
 int n,q,x,y,z;
 long long c1[MAXN],c2[MAXN];
