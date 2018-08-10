@@ -5,11 +5,9 @@ set shiftwidth=4
 set cin
 set mouse=a
 
-map<F2> :call SetTitle()<CR>
 map<F3> :call setline(1,'')<CR>
 func SetTitle()
 let l = 0
-let l = l + 1 | call setline(l,'#define superkunn')
 let l = l + 1 | call setline(l,'#include <algorithm>')
 let l = l + 1 | call setline(l,'#include  <iostream>')
 let l = l + 1 | call setline(l,'#include   <cstring>')
@@ -26,6 +24,7 @@ let l = l + 1 | call setline(l,'#include       <map>')
 let l = l + 1 | call setline(l,'using namespace std;')
 let l = l + 1 | call setline(l,'#define rep(i,a,b) for(int i=a;i<=b;i++)')
 let l = l + 1 | call setline(l,'#define per(i,a,b) for(int i=a;i>=b;i--)')
+let l = l + 1 | call setline(l,'#define clr(a,x) memset(a,x,sizeof(a))')
 let l = l + 1 | call setline(l,'#define pb push_back')
 let l = l + 1 | call setline(l,'#define mp make_pair')
 let l = l + 1 | call setline(l,'#define all(x) (x).begin(),(x).end()')
