@@ -1,34 +1,53 @@
-// ---
-// 时间复杂度:$O(VE)$.\\
-// 顶点编号从0开始
-// ---
-const int maxn = "Edit";
-int uN, vN;        //uN是匹配左边的顶点数,vN是匹配右边的顶点数
-int g[maxn][maxn]; //邻接矩阵g[i][j]表示i->j的有向边就可以了,是左边向右边的匹配
-int linker[maxn];
-bool used[maxn];
-bool dfs(int u)
-{
-    for (int v = 0; v < vN; v++)
-        if (g[u][v] && !used[v])
-        {
-            used[v] = true;
-            if (linker[v] == -1 || dfs(linker[v]))
-            {
-                linker[v] = u;
+//poj3041
+const int MAXV=1e3+5;
+struct BM{
+    int V;
+    vi G[MAXV];
+    int match[MAXV];
+    bool vis[MAXV];
+    void init(int x){
+        V=x;
+        rep(i,1,V)G[i].clear();
+    }
+    void add_edge(int u,int v){
+        G[u].pb(v);
+        G[v].pb(u);
+    }
+    bool dfs(int u){
+        vis[u]=true;
+        for(int i=0;i<(int)G[u].size();i++){
+            int v=G[u][i];
+            int w=match[v];
+            if(w==-1||(!vis[w]&&dfs(w))){
+                match[u]=v;
+                match[v]=u;
                 return true;
             }
         }
-    return false;
-}
-int hungary()
-{
-    int res = 0;
-    clr(linker, -1);
-    for (int u = 0; u < uN; u++)
-    {
-        clr(used, 0);
-        if (dfs(u)) res++;
+        return false;
     }
-    return res;
+    int matching(){
+        int ret=0;
+        clr(match,-1);
+        rep(i,1,V){
+            if(match[i]==-1){
+                clr(vis,0);
+                if(dfs(i))ret++;
+            }
+        }
+        return ret;
+    }
+}bm;
+int work(){
+    int n,k;
+    scanf("%d%d",&n,&k);
+    bm.init(2*n);
+    while(k--){
+        int u,v;
+        scanf("%d%d",&u,&v);
+        bm.add_edge(u,n+v);
+    }
+    printf("%d",bm.matching());
+    return 0;
 }
+
