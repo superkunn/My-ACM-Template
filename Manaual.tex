@@ -1331,231 +1331,193 @@ int work(){
 \end{lstlisting}
 \subsection{Segment Tree}
 \begin{lstlisting}
-#define lson rt << 1        // 左儿子
-#define rson rt << 1 | 1    // 右儿子
-#define Lson l, m, lson     // 左子树
-#define Rson m + 1, r, rson // 右子树
-void PushUp(int rt);        // 用lson和rson更新rt
-void PushDown(int rt[, int m]);                 // rt的标记下移，m为区间长度（若与标记有关）
-void build(int l, int r, int rt);               // 以rt为根节点，对区间[l, r]建立线段树
-void update([...,] int l, int r, int rt)        // rt[l, r]内寻找目标并更新
-int query(int L, int R, int l, int r, int rt)   // rt[l, r]内查询[L, R]
+#define lson rt<<1      
+#define rson rt<<1|1    
+#define le l,m,lson     
+#define ri m+1,r,rson
+#define mid m=(l+r)>>1
 \end{lstlisting}
 \subsubsection{Single-point Update}
 \begin{lstlisting}
-const int maxn = "Edit";
-int sum[maxn << 2]; // sum[rt]用于维护区间和
-void PushUp(int rt) { sum[rt] = sum[lson] + sum[rson]; }
-void build(int l, int r, int rt)
-{
-    if (l == r)
-    {
-        scanf("%d", &sum[rt]); // 建立的时候直接输入叶节点
+const int MAXN=5e4+5;
+int sum[MAXN<<2];
+void push_up(int rt){
+    sum[rt]=sum[lson]+sum[rson];
+}
+void build(int l,int r,int rt){
+    if(l==r){
+        scanf("%d",&sum[rt]);
         return;
     }
-    int m = (l + r) >> 1;
-    build(Lson);
-    build(Rson);
-    PushUp(rt);
+    int mid;
+    build(le);
+    build(ri);
+    push_up(rt);
 }
-void update(int p, int add, int l, int r, int rt)
-{
-    if (l == r)
-    {
-        sum[rt] += add;
+void update(int p,int v,int l,int r,int rt){
+    if(l==r){
+        sum[rt]+=v;
         return;
     }
-    int m = (l + r) >> 1;
-    if (p <= m)
-        update(p, add, Lson);
-    else
-        update(p, add, Rson);
-    PushUp(rt);
+    int mid;
+    if(p<=m)update(p,v,le);
+    else update(p,v,ri);
+    push_up(rt);
 }
-int query(int L, int R, int l, int r, int rt)
-{
-    if (L <= l && r <= R) return sum[rt];
-    int m = (l + r) >> 1, s = 0;
-    if (L <= m) s += query(L, R, Lson);
-    if (m < R) s += query(L, R, Rson);
-    return s;
+int query(int L,int R,int l,int r,int rt){
+    if(L<=l&&r<=R){
+        return sum[rt];
+    }
+    int mid;
+    int ret=0;
+    if(L<=m)ret+=query(L,R,le);
+    if(R>m)ret+=query(L,R,ri);
+    return ret;
 }
 \end{lstlisting}
 \subsubsection{Interval Update}
 \begin{lstlisting}
-const int maxn = "Edit";
-int seg[maxn << 2], sum[maxn << 2]; // seg[rt]用于存放懒惰标记，注意PushDown时标记的传递
-void PushUp(int rt) { sum[rt] = sum[lson] + sum[rson]; }
-void PushDown(int rt, int m)
-{
-    if (seg[rt] == 0) return;
-    seg[lson] += seg[rt];
-    seg[rson] += seg[rt];
-    sum[lson] += seg[rt] * (m - (m >> 1));
-    sum[rson] += seg[rt] * (m >> 1);
-    seg[rt] = 0;
+const int MAXN=1e5+5;
+ll lazy[MAXN<<2];
+ll tree[MAXN<<2];
+void push_up(int rt){
+    tree[rt]=tree[lson]+tree[rson];
 }
-void build(int l, int r, int rt)
-{
-    seg[rt] = 0;
-    if (l == r)
-    {
-        scanf("%lld", &sum[rt]);
+void push_down(int rt,int m){
+    ll w=lazy[rt];
+    if(w){
+        lazy[lson]+=w;
+        lazy[rson]+=w;
+        tree[lson]+=w*(m-(m>>1));
+        tree[rson]+=w*(m>>1);
+        lazy[rt]=0;
+    }
+}
+void build(int l,int r,int rt){
+    lazy[rt]=0;
+    if(l==r){
+        scanf("%lld",&tree[rt]);
         return;
     }
-    int m = (l + r) >> 1;
-    build(Lson);
-    build(Rson);
-    PushUp(rt);
+    int mid;
+    build(le);
+    build(ri);
+    push_up(rt);
 }
-void update(int L, int R, int add, int l, int r, int rt)
-{
-    if (L <= l && r <= R)
-    {
-        seg[rt] += add;
-        sum[rt] += add * (r - l + 1);
+void update(int L,int R,int v,int l,int r,int rt){
+    if(L<=l&&r<=R){
+        lazy[rt]+=v;
+        tree[rt]+=1ll*v*(r-l+1);
         return;
     }
-    PushDown(rt, r - l + 1);
-    int m = (l + r) >> 1;
-    if (L <= m) update(L, R, add, Lson);
-    if (m < R) update(L, R, add, Rson);
-    PushUp(rt);
+    push_down(rt,r-l+1);
+    int mid;
+    if(L<=m)update(L,R,v,le);
+    if(R>m)update(L,R,v,ri);
+    push_up(rt);
 }
-int query(int L, int R, int l, int r, int rt)
-{
-    if (L <= l && r <= R) return sum[rt];
-    PushDown(rt, r - l + 1);
-    int m = (l + r) >> 1, ret = 0;
-    if (L <= m) ret += query(L, R, Lson);
-    if (m < R) ret += query(L, R, Rson);
+ll query(int L,int R,int l,int r,int rt){
+    if(L<=l&&r<=R){
+        return tree[rt];
+    }
+    push_down(rt,r-l+1);
+    int mid;
+    ll ret=0;
+    if(L<=m)ret+=query(L,R,le);
+    if(R>m)ret+=query(L,R,ri);
     return ret;
 }
 \end{lstlisting}
 \subsection{Splay Tree}
 \begin{lstlisting}
-#define key_value ch[ch[root][1]][0]
-const int maxn = "Edit";
-struct Splay
-{
-    int a[maxn];
-    int sz[maxn], ch[maxn][2], fa[maxn];
-    int key[maxn], rev[maxn];
-    int root, tot;
-    int stk[maxn], top;
-    void init(int n)
-    {
-        tot = 0, top = 0;
-        root = newnode(0, -1);
-        ch[root][1] = newnode(root, -1);
-        for (int i = 0; i < n; i++) a[i] = i + 1;
-        key_value = build(0, n - 1, ch[root][1]);
-        pushup(ch[root][1]);
-        pushup(root);
+#define key_value ch[ch[rt][1]][0]
+const int MAXN=1e5;
+struct Splay{
+    int a[MAXN];//0 base
+    int sz[MAXN],ch[MAXN][2],fa[MAXN];
+    int key[MAXN],rev[MAXN];
+    int rt,tot;
+    int stk[MAXN],top;
+    void push_up(int x){
+        sz[x]=sz[ch[x][0]]+sz[ch[x][1]]+1;
     }
-    int newnode(int p = 0, int k = 0)
-    {
-        int x = top ? stk[top--] : ++tot;
-        fa[x] = p;
-        sz[x] = 1;
-        ch[x][0] = ch[x][1] = 0;
-        key[x] = k;
-        rev[x] = 0;
-        return x;
-    }
-    void pushdown(int x)
-    {
-        if (rev[x])
-        {
-            swap(ch[x][0], ch[x][1]);
-            if (ch[x][0]) rev[ch[x][0]] ^= 1;
-            if (ch[x][1]) rev[ch[x][1]] ^= 1;
-            rev[x] = 0;
+    void push_down(int x){
+        if(rev[x]){
+            swap(ch[x][0],ch[x][1]);
+            if(ch[x][0])rev[ch[x][0]]^=1;
+            if(ch[x][1])rev[ch[x][1]]^=1;
+            rev[x]=0;
         }
     }
-    void pushup(int x) { sz[x] = sz[ch[x][0]] + sz[ch[x][1]] + 1; }
-    void rotate(int x, int d)
-    {
-        int y = fa[x];
-        pushdown(y), pushdown(x);
-        ch[y][d ^ 1] = ch[x][d];
-        fa[ch[x][d]] = y;
-        if (fa[y]) ch[fa[y]][ch[fa[y]][1] == y] = x;
-        fa[x] = fa[y];
-        ch[x][d] = y;
-        fa[y] = x;
-        pushup(y);
+    int newnode(int p=0,int k=0){
+        int x=top?stk[top--]:++tot;
+        fa[x]=p;
+        sz[x]=1;
+        ch[x][0]=ch[x][1]=0;
+        key[x]=k;
+        rev[x]=0;
+        return x;
     }
-    void splay(int x, int goal = 0)
-    {
-        pushdown(x);
-        while (fa[x] != goal)
-        {
-            if (fa[fa[x]] == goal)
-                rotate(x, ch[fa[x]][0] == x);
-            else
-            {
-                int y = fa[x];
-                int d = ch[fa[y]][0] == y;
-                ch[y][d] == x ? rotate(x, d ^ 1) : rotate(y, d);
-                rotate(x, d);
+    int build(int l,int r,int p){
+        if(l>r)return 0;
+        int mid=(l+r)>>1;
+        int x=newnode(p,a[mid]);
+        ch[x][0]=build(l,mid-1,x);
+        ch[x][1]=build(mid+1,r,x);
+        push_up(x);
+        return x;
+    }
+    void init(int n){
+        tot=0,top=0;
+        rt=newnode(0,-1);
+        ch[rt][1]=newnode(rt,-1);
+        rep(i,0,n-1)a[i]=i+1;
+        key_value=build(0,n-1,ch[rt][1]);
+        push_up(ch[rt][1]);
+        push_up(rt);
+    }
+    void rotate(int x,int d){
+        int y=fa[x];
+        push_down(y);
+        push_down(x);
+        ch[y][d^1]=ch[x][d];
+        fa[ch[x][d]]=y;
+        if(fa[y])ch[fa[y]][ch[fa[y]][1]==y]=x;
+        fa[x]=fa[y];
+        ch[x][d]=y;
+        fa[y]=x;
+        push_up(y);
+    }
+    void splay(int x,int goal=0){
+        push_down(x);
+        while(fa[x]!=goal){
+            if(fa[fa[x]]==goal){
+                rotate(x,ch[fa[x]][0]==x);
+            }else{
+                int y=fa[x];
+                int d=ch[fa[y]][0]==y;
+                ch[y][d]==x?rotate(x,d^1):rotate(y,d);
+                rotate(x,d);
             }
         }
-        pushup(x);
-        if (goal == 0) root = x;
+        push_up(x);
+        if(goal==0)rt=x;
     }
-    int kth(int r, int k)
-    {
-        pushdown(r);
-        int t = sz[ch[r][0]] + 1;
-        if (t == k) return r;
-        return t > k ? kth(ch[r][0], k) : kth(ch[r][1], k - t);
+    int kth(int r,int k){
+        push_down(r);
+        int t=sz[ch[r][0]]+1;
+        if(t==k)return r;
+        return t>k?kth(ch[r][0],k):kth(ch[r][1],k-t);
     }
-    int build(int l, int r, int p)
-    {
-        if (l > r) return 0;
-        int mid = l + r >> 1;
-        int x = newnode(p, a[mid]);
-        ch[x][0] = build(l, mid - 1, x);
-        ch[x][1] = build(mid + 1, r, x);
-        pushup(x);
-        return x;
+    void select(int l,int r){
+        splay(kth(rt,1),0);
+        splay(kth(ch[rt][1],r-l+2),rt);
     }
-    void select(int l, int r)
-    {
-        splay(kth(root, l), 0);
-        splay(kth(ch[root][1], r - l + 2), root);
-    }
-    // 各种操作
 };
 \end{lstlisting}
 \subsection{Functional Segment Tree}
 \begin{lstlisting}
-\end{lstlisting}
-静态查询区间第$k$小的值\\
-必要时进行离散化
-\begin{lstlisting}
 //poj 2104
-#include<cstdio>
-#include<iostream>
-#include<cmath>
-#include<queue>
-#include<stack>
-#include<set>
-#include<map>
-#include<algorithm>
-#include<vector>
-#include<string>
-#include<cstring>
-using namespace std;
-#define rep(i,a,b) for(int i=a;i<=b;i++)
-#define per(i,a,b) for(int i=a;i>=b;i--)
-#define pb push_back
-#define mp make_pair
-#define all(x) (x).begin(),(x).end()
-typedef long long ll;
-typedef vector<int> vi;
-typedef pair<int,int> pii;
 const int MAXN=1e5+6;
 int n,m,cnt,x,y,k,root[MAXN],a[MAXN];
 struct node{int l,r,sum;}T[MAXN*40];
@@ -1587,58 +1549,48 @@ int work(){
     rep(i,1,m)scanf("%d%d%d",&x,&y,&k),printf("%d\n",v[query(1,n,root[x-1],root[y],k)-1]);
     return 0;
 }
-int main(){
-#ifdef superkunn
-    freopen("input.txt","rt",stdin);
-#endif
-    work();
-    return 0;
-}
+
 \end{lstlisting}
 \subsection{Sparse Table}
 \begin{lstlisting}
-const int maxn = "Edit";
-int mmax[maxn][30], mmin[maxn][30];
-int a[maxn], n, k;
-void init()
-{
+const int MAXN = "Edit";
+int mmax[MAXN][30], mmin[MAXN][30];
+int a[MAXN], n, k;
+void init(){
     for (int i = 1; i <= n; i++) mmax[i][0] = mmin[i][0] = a[i];
     for (int j = 1; (1 << j) <= n; j++)
-        for (int i = 1; i + (1 << j) - 1 <= n; i++)
-        {
+        for (int i = 1; i + (1 << j) - 1 <= n; i++){
             mmax[i][j] = max(mmax[i][j - 1], mmax[i + (1 << (j - 1))][j - 1]);
             mmin[i][j] = min(mmin[i][j - 1], mmin[i + (1 << (j - 1))][j - 1]);
         }
 }
-// op=0/1 返回[l,r]最大/小值
-int rmq(int l, int r, int op)
-{
+// op=0/1 return [l,r] max/min
+int rmq(int l, int r, int op){
     int k = 31 - __builtin_clz(r - l + 1);
     if (op == 0)
         return max(mmax[l][k], mmax[r - (1 << k) + 1][k]);
     return min(mmin[l][k], mmin[r - (1 << k) + 1][k]);
 }
 \end{lstlisting}
-二维RMQ
+2D
 \begin{lstlisting}
-void init()
-{
-    for (int i = 0; (1 << i) <= n; i++)
-        for (int j = 0; (1 << j) <= m; j++)
-        {
+void init(){
+    for (int i = 0; (1 << i) <= n; i++){
+        for (int j = 0; (1 << j) <= m; j++){
             if (i == 0 && j == 0) continue;
             for (int row = 1; row + (1 << i) - 1 <= n; row++)
                 for (int col = 1; col + (1 << j) - 1 <= m; col++)
-                    if (i)
-                        dp[row][col][i][j] = max(dp[row][col][i - 1][j],
-                                            dp[row + (1 << (i - 1))][col][i - 1][j]);
-                    else
-                        dp[row][col][i][j] = max(dp[row][col][i][j - 1],
-                                            dp[row][col + (1 << (j - 1))][i][j - 1]);
+                    if (i){
+                        dp[row][col][i][j] = max(dp[row][col][i - 1][j];
+                        dp[row + (1 << (i - 1))][col][i - 1][j]);
+                    }else{
+                        dp[row][col][i][j] = max(dp[row][col][i][j - 1];
+                        dp[row][col + (1 << (j - 1))][i][j - 1]);
+                    }
         }
+    }
 }
-int rmq(int x1, int y1, int x2, int y2)
-{
+int rmq(int x1, int y1, int x2, int y2){
     int kx = 31 - __builtin_clz(x2 - x1 + 1);
     int ky = 31 - __builtin_clz(y2 - y1 + 1);
     int m1 = dp[x1][y1][kx][ky];
@@ -1975,43 +1927,76 @@ int main(){
 \end{lstlisting}
 \subsection{Topo Sort}
 \begin{lstlisting}
-\end{lstlisting}
-存图前记得初始化\\
-Ans排序结果，G邻接表，deg入度，map用于判断重边\\
-排序成功返回1，存在环返回0
-\begin{lstlisting}
-const int maxn = "Edit";
-int Ans[maxn];
-vector<int> G[maxn];
-int deg[maxn];
-map<PII, bool> S;
-void init(int n)
-{
-    S.clear();
-    for (int i = 0; i < n; i++) G[i].clear();
-    clr(deg, 0), clr(Ans, 0);
+//cf 915D
+const int MAXN=505;
+const int MAXM=1e5+5;
+int n,m;
+int tot;
+int head[MAXN],cur[MAXN],idec[MAXN];
+struct Edge{
+    int v,nxt;
+    Edge(){}
+    Edge(int v,int nxt):v(v),nxt(nxt){}
+}edge[MAXM];
+void init(){
+    tot=0;
+    clr(head,-1);
 }
-void add_edge(int u, int v)
-{
-    if (S[mp(u, v)]) return;
-    G[u].pb(v), S[mp(u, v)] = 1, deg[v]++;
+void add_edge(int u,int v){
+    edge[tot]=Edge(v,head[u]);
+    head[u]=tot++;
 }
-bool Toposort(int n)
-{
-    int tot = 0;
-    queue<int> q;
-    for (int i = 0; i < n; ++i)
-        if (deg[i] == 0) q.push(i);
-    while (!q.empty())
-    {
-        int u = q.front();
-        que.pop();
-        Ans[tot++] = u;
-        for (auto& v : G[u])
-            if (--deg[v] == 0) q.push(t);
+int que[MAXN];
+int st,ed;
+bool topsort(int x){
+    int nst=1,ned=0;
+    rep(i,1,n)cur[i]=idec[i];
+    cur[x]--;
+    que[++ned]=x;
+    while(nst<=ned){
+        int u=que[nst++];
+        for(int i=head[u];i!=-1;i=edge[i].nxt){
+            int v=edge[i].v;
+            if(--cur[v]==0)que[++ned]=v;
+        }
     }
-    if (tot < n - 1) return false;
-    return true;
+    if(ned+ed==n)return true;
+    else return false;
+}
+int work(){
+    scanf("%d%d",&n,&m);
+    init();
+    while(m--){
+        int u,v;
+        scanf("%d%d",&u,&v);
+        add_edge(u,v);
+        idec[v]++;
+    }
+    st=1,ed=0;
+    rep(i,1,n){
+        if(idec[i]==0)que[++ed]=i;
+    }
+    while(st<=ed){
+        int u=que[st++];
+        for(int i=head[u];i!=-1;i=edge[i].nxt){
+            int v=edge[i].v;
+            if(--idec[v]==0)que[++ed]=v;
+        }
+    }
+    if(ed==n){
+        puts("YES");
+        return 0;
+    }
+    rep(i,1,n){
+        if(idec[i]==1){
+            if(topsort(i)){
+                puts("YES");
+                return 0;
+            }
+        }
+    }
+    puts("NO");
+    return 0;
 }
 \end{lstlisting}
 \subsection{LCA}
@@ -2411,189 +2396,61 @@ void Fleury(int s)
 }
 \end{lstlisting}
 \subsection{Bipartite Graph Matching}
-\begin{enumerate}
-\item 一个二分图中的最大匹配数等于这个图中的最小点覆盖数
-
-\item 最小路径覆盖=$|G|$-最大匹配数
-
-在一个 $N \times N$ 的有向图中,路径覆盖就是在图中找一些路经,使之覆盖了图中的所有顶点,且任何一个顶点有且只有一条路径与之关联;
-
-(如果把这些路径中的每条路径从它的起始点走到它的终点,那么恰好可以经过图中的每个顶点一次且仅一次);如果不考虑图中存在回路,那么每每条路径就是一个弱连通子集.
-
-由上面可以得出:
-
-\begin{enumerate}
-\item 一个单独的顶点是一条路径;
-
-\item 如果存在一路径 $p_1,p_2,......p_k$,其中 $p_1$ 为起点,$p_k$ 为终点,那么在覆盖图中,顶点 $p_1,p2,......p_k$ 不再与其它的顶点之间存在有向边.
-\end{enumerate}
-
-最小路径覆盖就是找出最小的路径条数,使之成为 $G$ 的一个路径覆盖.
-
-路径覆盖与二分图匹配的关系:最小路径覆盖=$|G|$-最大匹配数;
-
-\item 二分图最大独立集=顶点数-二分图最大匹配
-
-独立集:图中任意两个顶点都不相连的顶点集合。
-\end{enumerate}
-\subsubsection{Hungry(Matrix)}
+\subsubsection{Hungry}
 \begin{lstlisting}
-\end{lstlisting}
-时间复杂度:$O(VE)$.\\
-顶点编号从0开始
-\begin{lstlisting}
-const int maxn = "Edit";
-int uN, vN;        //uN是匹配左边的顶点数,vN是匹配右边的顶点数
-int g[maxn][maxn]; //邻接矩阵g[i][j]表示i->j的有向边就可以了,是左边向右边的匹配
-int linker[maxn];
-bool used[maxn];
-bool dfs(int u)
-{
-    for (int v = 0; v < vN; v++)
-        if (g[u][v] && !used[v])
-        {
-            used[v] = true;
-            if (linker[v] == -1 || dfs(linker[v]))
-            {
-                linker[v] = u;
+//poj3041
+const int MAXV=1e3+5;
+struct BM{
+    int V;
+    vi G[MAXV];
+    int match[MAXV];
+    bool vis[MAXV];
+    void init(int x){
+        V=x;
+        rep(i,1,V)G[i].clear();
+    }
+    void add_edge(int u,int v){
+        G[u].pb(v);
+        G[v].pb(u);
+    }
+    bool dfs(int u){
+        vis[u]=true;
+        for(int i=0;i<(int)G[u].size();i++){
+            int v=G[u][i];
+            int w=match[v];
+            if(w==-1||(!vis[w]&&dfs(w))){
+                match[u]=v;
+                match[v]=u;
                 return true;
             }
         }
-    return false;
-}
-int hungary()
-{
-    int res = 0;
-    clr(linker, -1);
-    for (int u = 0; u < uN; u++)
-    {
-        clr(used, 0);
-        if (dfs(u)) res++;
+        return false;
     }
-    return res;
-}
-\end{lstlisting}
-\subsubsection{Hungry(List)}
-\begin{lstlisting}
-\end{lstlisting}
-使用前用init()进行初始化\\
-加边使用函数addedge(u,v)
-\begin{lstlisting}
-const int maxn = "Edit";
-int n;
-vector<int> G[maxn];
-int linker[maxn];
-bool used[maxn];
-inline void init(int n)
-{
-    for (int i = 0; i < n; i++) G[i].clear();
-}
-inline void addedge(int u, int v) { G[u].pb(v); }
-bool dfs(int u)
-{
-    for (auto& v : G[u])
-    {
-        if (!used[v])
-        {
-            used[v] = true;
-            if (linker[v] == -1 || dfs(linker[v]))
-            {
-                linker[v] = u;
-                return true;
+    int matching(){
+        int ret=0;
+        clr(match,-1);
+        rep(i,1,V){
+            if(match[i]==-1){
+                clr(vis,0);
+                if(dfs(i))ret++;
             }
         }
+        return ret;
     }
-    return false;
-}
-int hungary()
-{
-    int ans = 0;
-    clr(linker, -1);
-    for (int u = 0; u < n; v++)
-    {
-        clr(used, 0);
-        if (dfs(u)) ans++;
+}bm;
+int work(){
+    int n,k;
+    scanf("%d%d",&n,&k);
+    bm.init(2*n);
+    while(k--){
+        int u,v;
+        scanf("%d%d",&u,&v);
+        bm.add_edge(u,n+v);
     }
-    return ans;
+    printf("%d",bm.matching());
+    return 0;
 }
-\end{lstlisting}
-\subsubsection{Hopcroft-Carp}
-\begin{lstlisting}
-\end{lstlisting}
-复杂度$O(\sqrt{n}*E)$\\
-$uN$ 为左端的顶点数,使用前赋值(点编号0开始)
-\begin{lstlisting}
-const int maxn = "Edit";
-vector<int> G[maxn];
-int uN;
-int Mx[maxn], My[maxn];
-int dx[maxn], dy[maxn];
-int dis;
-bool used[maxn];
-inline void init(int n)
-{
-    for (int i = 0; i < n; i++) G[i].clear();
-}
-inline void addedge(int u, int v) { G[u].pb(v); }
-bool bfs()
-{
-    queue<int> q;
-    dis = INF;
-    clr(dx, -1), clr(dy, -1);
-    for (int i = 0; i < uN; i++)
-        if (Mx[i] == -1)
-            q.push(i), dx[i] = 0;
-    while (!q.empty())
-    {
-        int u = q.front();
-        q.pop();
-        if (dx[u] > dis) break;
-        for (auto& v : G[u])
-        {
-            if (dy[v] == -1)
-            {
-                dy[v] = dx[u] + 1;
-                if (My[v] == -1)
-                    dis = dy[v];
-                else
-                {
-                    dx[My[v]] = dy[v] + 1;
-                    q.push(My[v]);
-                }
-            }
-        }
-    }
-    return dis != INF;
-}
-bool dfs(int u)
-{
-    for (auto& v : G[u])
-    {
-        if (!used[v] && dy[v] == dx[u] + 1)
-        {
-            used[v] = true;
-            if (My[v] != -1 && dy[v] == dis) continue;
-            if (My[v] == -1 || dfs(My[v]))
-            {
-                My[v] = u, Mx[u] = v;
-                return true;
-            }
-        }
-    }
-    return false;
-}
-int MaxMatch()
-{
-    int res = 0;
-    clr(Mx, -1), clr(My, -1);
-    while (bfs())
-    {
-        clr(used, false);
-        for (int i = 0; i < uN; i++)
-            if (Mx[i] == -1 && dfs(i)) res++;
-    }
-    return res;
-}
+
 \end{lstlisting}
 \subsubsection{Hungry(Multiple)}
 \begin{lstlisting}
@@ -3512,9 +3369,6 @@ while (p){
 \end{lstlisting}
 \subsection{Mo Algorithm}
 \begin{lstlisting}
-\end{lstlisting}
-莫队算法,可以解决一类静态,离线区间查询问题。分成 $\sqrt{x}$ 块,分块排序。
-\begin{lstlisting}
 //cf 671 E
 #include <bits/stdc++.h>
 using namespace std;
@@ -3585,7 +3439,7 @@ set shiftwidth=4
 set cin
 set mouse=a
 
-map<F3> :call setline(1,'')<CR>
+map<F2> :call SetTitle()<CR>
 func SetTitle()
 let l = 0
 let l = l + 1 | call setline(l,'#include <algorithm>')
