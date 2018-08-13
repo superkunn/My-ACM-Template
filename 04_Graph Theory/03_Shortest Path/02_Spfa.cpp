@@ -1,38 +1,33 @@
-//poj 3259
-#include<cstdio>
-#include<iostream>
-#include<algorithm>
-#include<queue>
-#include<cstring>
-using namespace std;
-const int INF=1e9;
-const int MAXV=500+5;
-const int MAXE=2700+5;
+//hdu3592
+const int MAXN=1e3+5;
+const int MAXE=3e4+5;
+const int INF=0x3f3f3f3f;
+int N,X,Y;
 int tot;
-int head[MAXV];
-struct node{
-    int to,cost,next;
-}edge[MAXE<<1];
-int d[MAXV];
-queue<int> que;
-bool inq[MAXV];
-int qtime[MAXV];
+int head[MAXN];
+struct Edge{
+    int v,w,nxt;
+    Edge(){}
+    Edge(int v,int w,int nxt):v(v),w(w),nxt(nxt){}
+}edge[MAXE];
 void init(){
     tot=0;
-    memset(head,-1,sizeof(head));
+    clr(head,-1);
 }
-void add_edge(int u,int v,int x){
-    edge[tot].to=v;
-    edge[tot].cost=x;
-    edge[tot].next=head[u];
+void add_edge(int u,int v,int w){
+    edge[tot]=Edge(v,w,head[u]);
     head[u]=tot++;
 }
-bool spfa(int n){
-    memset(d,-1,sizeof(d));
-    d[1]=0;
+queue<int> que;
+bool inq[MAXN];
+int qtime[MAXN];
+int d[MAXN];
+int spfa(){
     while(!que.empty())que.pop();
-    memset(inq,0,sizeof(inq));
-    memset(qtime,0,sizeof(qtime));
+    clr(qtime,0);
+    clr(inq,0);
+    rep(i,1,N)d[i]=INF;
+    d[1]=0;
     que.push(1);
     inq[1]=1;
     qtime[1]++;
@@ -40,47 +35,43 @@ bool spfa(int n){
         int u=que.front();
         que.pop();
         inq[u]=0;
-        for(int i=head[u];i!=-1;i=edge[i].next){
-            int v=edge[i].to;
-            int w=edge[i].cost;
-            if(d[v]==-1||d[u]+w<d[v]){
+        for(int i=head[u];i!=-1;i=edge[i].nxt){
+            int v=edge[i].v;
+            int w=edge[i].w;
+            if(d[v]>d[u]+w){
                 d[v]=d[u]+w;
                 if(!inq[v]){
-                    inq[v]=1;
                     que.push(v);
+                    inq[v]=1;
                     qtime[v]++;
-                    if(qtime[v]>n){
-                        return false;
-                    }
+                    if(qtime[v]>N)return -1;
                 }
             }
-        }   
+        }
     }
-    return true;
+    if(d[N]==INF)return -2;
+    else return d[N];
 }
-int main(){
-    int kase;
-    scanf("%d",&kase);
-    while(kase--){
+int work(){
+    int T;
+    scanf("%d",&T);
+    while(T--){
+        scanf("%d%d%d",&N,&X,&Y);
         init();
-        int n,m,w;
-        scanf("%d%d%d",&n,&m,&w);
-        while(m--){
-            int u,v,x;
-            scanf("%d%d%d",&u,&v,&x);
-            add_edge(u,v,x);
-            add_edge(v,u,x);
+        rep(i,1,N-1){
+            add_edge(i+1,i,0);
         }
-        while(w--){
-            int u,v,x;
-            scanf("%d%d%d",&u,&v,&x);
-            add_edge(u,v,-x);
+        while(X--){
+            int x,y,z;
+            scanf("%d%d%d",&x,&y,&z);
+            add_edge(x,y,z);
         }
-        if(!spfa(n)){
-            puts("YES");
-        }else{
-            puts("NO");
+        while(Y--){
+            int x,y,z;
+            scanf("%d%d%d",&x,&y,&z);
+            add_edge(y,x,-z);
         }
+        printf("%d\n",spfa());
     }
     return 0;
 }
