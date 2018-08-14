@@ -5,8 +5,6 @@
 #include    <string>
 #include    <cstdio>
 #include    <vector>
-#include    <cstdio>
-#include    <vector>
 #include     <stack>
 #include     <queue>
 #include     <cmath>
