@@ -21,7 +21,7 @@ void add_edge(int u,int v){
 }
 void dfs(int u){
     vis[u]=true;
-    for(int i=head[u];i!=-1;i=edge[i].nxt){
+    for(int i=head[u];~i;i=edge[i].nxt){
         int v=edge[i].v;
         if(!vis[v])dfs(v);
     }
@@ -30,7 +30,7 @@ void dfs(int u){
 void rdfs(int u,int k){
     vis[u]=true;
     Belong[u]=k;
-    for(int i=rhead[u];i!=-1;i=redge[i].nxt){
+    for(int i=rhead[u];~i;i=redge[i].nxt){
         int v=redge[i].v;
         if(!vis[v])rdfs(v,k);
     }
