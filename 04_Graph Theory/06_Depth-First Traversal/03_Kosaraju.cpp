@@ -1,7 +1,6 @@
-const int MAXV=1e4+10;
-const int MAXE=1e5+10;
-int V,tot,scc;
-int head[MAXV],rhead[MAXV],Belong[MAXV];
+const int MAXV=2e4+10;
+const int MAXE=5e4+10;
+int V,tot,scc,head[MAXV],rhead[MAXV],Belong[MAXV];
 bool vis[MAXV];
 int stk[MAXV],top;
 struct Edge{
@@ -9,9 +8,8 @@ struct Edge{
     Edge(){}
     Edge(int v,int nxt):v(v),nxt(nxt){}
 }edge[MAXE],redge[MAXE];
-void init(int _n){
-    V=_n;
-    tot=scc=top=0;
+void init(){
+    tot=0;
     clr(head,-1);
     clr(rhead,-1);
 }
@@ -36,7 +34,8 @@ void rdfs(int u,int k){
         if(!vis[v])rdfs(v,k);
     }
 }
-void kscc(){
+void kscc(int V){
+    scc=top=0;
     clr(vis,0);
     rep(i,1,V)if(!vis[i])dfs(i);
     clr(vis,0);
