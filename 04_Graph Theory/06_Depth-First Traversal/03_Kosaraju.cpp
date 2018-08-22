@@ -1,6 +1,6 @@
 const int MAXV=2e4+10;
 const int MAXE=5e4+10;
-int V,tot,scc,head[MAXV],rhead[MAXV],Belong[MAXV];
+int tot,scc,head[MAXV],rhead[MAXV],Belong[MAXV];
 bool vis[MAXV];
 int stk[MAXV],top;
 struct Edge{
