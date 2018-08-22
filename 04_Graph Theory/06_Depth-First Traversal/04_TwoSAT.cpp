@@ -1,7 +1,7 @@
 //poj3683
 const int MAXV=1e5;
 const int MAXE=3e6+5;
-int V,tot,scc,head[MAXV],rhead[MAXV],Belong[MAXV];
+int tot,scc,head[MAXV],rhead[MAXV],Belong[MAXV];
 bool vis[MAXV];
 int stk[MAXV],top;
 struct Edge{
