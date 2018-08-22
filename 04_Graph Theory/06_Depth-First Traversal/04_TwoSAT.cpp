@@ -56,7 +56,7 @@ void add_clause(int xv,int x,int yv,int y){
 }
 void add_var(int xv,int x){
     x=x<<1|xv;
-    add_edge(x,x^1);
+    add_edge(x^1,x);
 }
 int st[MAXV],ed[MAXV],d[MAXV];
 char tm[10];
