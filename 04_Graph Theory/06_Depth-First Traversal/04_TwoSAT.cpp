@@ -1,4 +1,7 @@
 //poj3683
+//0 base !
+//if （x V （！y））then add_clause(1,x,0,y)
+//if  x then add_var(1,x)
 const int MAXV=1e5;
 const int MAXE=3e6+5;
 int tot,scc,head[MAXV],rhead[MAXV],Belong[MAXV];
