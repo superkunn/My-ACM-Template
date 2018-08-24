@@ -1,12 +1,17 @@
-ll Mul(ll a, ll b, ll mod){
-    ll t = 0;
-    for (; b; b >>= 1, a = (a << 1) % mod)
-        if (b & 1) t = (t + a) % mod;
-    return t;
+ll pow_mod(ll a,ll b,ll mod) {
+    ll res=1;
+    for(;b;b>>=1){
+        if(b&1)res=res*a%mod;
+        a=a*a%mod;
+    }
+    return res;
 }
-ll Pow(ll a, ll n, ll mod){
-    ll t = 1;
-    for (; n; n >>= 1, a = (a * a % mod))
-        if (n & 1) t = (t * a % mod);
-    return t;
+//hdu 5187
+ll mul_mod(ll a,ll b,ll mod){
+    ll res=0;
+    for(;b;b>>=1){
+        if(b&1)res=(res+a)%mod;
+        a=(a<<1)%mod;
+    }
+    return res;
 }
