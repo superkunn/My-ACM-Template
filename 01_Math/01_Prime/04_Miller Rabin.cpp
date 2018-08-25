@@ -1,19 +1,4 @@
-ll mul_mod(ll a,ll b,ll mod){
-    ll res=0;
-    for(;b;b>>=1){
-        if(b&1)res=(res+a)%mod;
-        a=(a<<1)%mod;
-    }
-    return res;
-}
-ll pow_mod(ll a,ll b,ll mod) {
-    ll res=1;
-    for(;b;b>>=1){
-        if(b&1)res=mul_mod(res,a,mod);
-        a=mul_mod(a,a,mod);
-    }
-    return res;
-}
+//using Fast Power
 bool Miller_Rabin(ll n, int s){//s is testing frequency . true -> n is prime 
     if (n == 2) return 1;
     if (n < 2 || !(n & 1)) return 0;
