@@ -5,7 +5,7 @@
 #include<cstring>
 #include<queue>
 using namespace std;
-#define clr(a,x) memset(a,x,sizeof(a));
+#define clr(a,x) memset(a,x,sizeof(a))
 const int MAXV=400+5;
 const int MAXE=1e5+5;
 const int INF=0x3f3f3f3f;
