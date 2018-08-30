@@ -21,3 +21,12 @@ bool operator == (const Point& a,const Point &b){
 double Dot(Vector A,Vector B){return A.x*B.x+A.y*B.y;}
 double Length(Vector A){return sqrt(Dot(A,A));}
 double Angle(Vector A,Vector B){return acos(Dot(A,B)/Length(A)/Length(B));}
+double Cross(Vector A,Vector B){return A.x*B.y-A.y*B.x;}
+double Area2(Point A,Point B,Point C){return Cross(B-A,C-A);}
+Vector Rotate(Vector A,double rad){
+    return Vector(A.x*cos(rad)-A.y*sin(rad),A.x*sin(rad)+A.y*cos(rad));
+}
+Vector Normal(Vector A){
+    double L=Length(A);
+    return Vector(-A.y/L,A.x/L);
+}
