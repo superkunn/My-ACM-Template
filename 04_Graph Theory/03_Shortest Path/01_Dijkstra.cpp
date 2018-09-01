@@ -37,7 +37,7 @@ void dij(int s){
             Edge e=edge[i];
             if(d[e.v]==-1||d[e.v]>d[v]+e.c){
                 d[e.v]=d[v]+e.c;
-                que.push(P(d[e.v],e.v));
+                que.push(mp(d[e.v],e.v));
             }
         }
     }
