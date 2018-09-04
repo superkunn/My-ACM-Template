@@ -1,46 +1,57 @@
-const int MAXN = "Edit";
-int mmax[MAXN][30], mmin[MAXN][30];
-int a[MAXN], n, k;
-void init(){
-    for (int i = 1; i <= n; i++) mmax[i][0] = mmin[i][0] = a[i];
-    for (int j = 1; (1 << j) <= n; j++)
-        for (int i = 1; i + (1 << j) - 1 <= n; i++){
-            mmax[i][j] = max(mmax[i][j - 1], mmax[i + (1 << (j - 1))][j - 1]);
-            mmin[i][j] = min(mmin[i][j - 1], mmin[i + (1 << (j - 1))][j - 1]);
-        }
+#include<bits/stdc++.h>
+using namespace std;
+const int MAXN=1e5+10;
+int dp[MAXN][33];
+int a[MAXN],b[MAXN],Belong[MAXN];
+int rmq(int l,int r){
+    int k=31-__builtin_clz(r-l+1);
+    return max(dp[l][k],dp[r-(1<<k)+1][k]);
 }
-// op=0/1 return [l,r] max/min
-int rmq(int l, int r, int op){
-    int k = 31 - __builtin_clz(r - l + 1);
-    if (op == 0)
-        return max(mmax[l][k], mmax[r - (1 << k) + 1][k]);
-    return min(mmin[l][k], mmin[r - (1 << k) + 1][k]);
-}
-// ---
-// 2D
-// ---
-void init(){
-    for (int i = 0; (1 << i) <= n; i++){
-        for (int j = 0; (1 << j) <= m; j++){
-            if (i == 0 && j == 0) continue;
-            for (int row = 1; row + (1 << i) - 1 <= n; row++)
-                for (int col = 1; col + (1 << j) - 1 <= m; col++)
-                    if (i){
-                        dp[row][col][i][j] = max(dp[row][col][i - 1][j];
-                        dp[row + (1 << (i - 1))][col][i - 1][j]);
-                    }else{
-                        dp[row][col][i][j] = max(dp[row][col][i][j - 1];
-                        dp[row][col + (1 << (j - 1))][i][j - 1]);
-                    }
+int main(){
+    int n;
+    while(scanf("%d",&n),n){
+        int q;
+        scanf("%d",&q);
+        int index=0;
+        int now=-111111;
+        for(int i=1;i<=n;i++){
+            int x;
+            scanf("%d",&x);
+            if(now!=x){
+                index++;
+                now=x;
+                a[index]=i;
+            }
+            Belong[i]=index;
+            b[index]=i;
         }
+        for(int i=1;i<=index;i++){
+            dp[i][0]=b[i]-a[i]+1;
+        }
+        for (int j = 1; (1 << j) <= index; j++){
+            for (int i = 1; i + (1 << j) - 1 <= index; i++){
+                dp[i][j] = max(dp[i][j - 1], dp[i + (1 << (j - 1))][j - 1]);
+            }
+        }
+        while(q--){
+            int l,r;
+            scanf("%d%d",&l,&r);
+            if(Belong[l]==Belong[r]){
+                printf("%d\n",r-l+1);
+            }else{
+                int pos1=Belong[l];
+                int ans=b[pos1]-l+1;
+                int pos2=Belong[r];
+                ans=max(ans,r-a[pos2]+1);
+                pos1++;
+                pos2--;
+                if(pos1<=pos2){
+                    ans=max(ans,rmq(pos1,pos2));
+                }
+                printf("%d\n",ans);
+            }
+        }
+
     }
-}
-int rmq(int x1, int y1, int x2, int y2){
-    int kx = 31 - __builtin_clz(x2 - x1 + 1);
-    int ky = 31 - __builtin_clz(y2 - y1 + 1);
-    int m1 = dp[x1][y1][kx][ky];
-    int m2 = dp[x2 - (1 << kx) + 1][y1][kx][ky];
-    int m3 = dp[x1][y2 - (1 << ky) + 1][kx][ky];
-    int m4 = dp[x2 - (1 << kx) + 1][y2 - (1 << ky) + 1][kx][ky];
-    return max(max(m1, m2), max(m3, m4));
+    return 0;
 }
