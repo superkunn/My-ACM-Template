@@ -12,6 +12,17 @@ ll mul_mod(ll a,ll b,ll mod){
     }
     return res;
 }
+/*
+ll mul_mod(ll a,ll b,ll mod){
+    a%=mod;
+    b%=mod;
+    ll c=(long double)a*b/mod;
+    ll ans=a*b-c*mod;
+    if(ans<0)ans+=mod;
+    else if(ans>mod)ans-=mod;
+    return ans;
+}
+*/
 ll pow_mod(ll a,ll b,ll mod){
     ll res=1%mod;
     while(b){
