@@ -23,7 +23,7 @@ ll mul_mod(ll a,ll b,ll mod){
     return ans;
 }
 */
-ll pow_mod(ll a,ll b,ll mod){
+ll pow_mod(ll a,ll b,ll mod){//a^b
     ll res=1%mod;
     while(b){
         if(b&1)res=mul_mod(res,a,mod);
