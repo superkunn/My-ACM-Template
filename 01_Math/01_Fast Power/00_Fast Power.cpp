@@ -1,25 +1,23 @@
 typedef long long ll;
+void add(ll &a,ll b,ll mod){
+    a+=b;
+    a%=mod;
+}
 ll mul_mod(ll a,ll b,ll mod){
     ll res=0;
-    for(;b;b>>=1){
-        if(b&1)res=(res+a)%mod;
-        a=(a<<1)%mod;
+    while(b){
+        if(b&1)add(res,a,mod);
+        add(a,a,mod);
+        b>>=1;
     }
     return res;
 }
-ll pow_mod(ll a,ll b,ll mod){//a^b
+ll pow_mod(ll a,ll b,ll mod){
     ll res=1%mod;
-    for(;b;b>>=1){
-        if(b&1)res=mul_mod(res,a,mod)%mod;
-        a=mul_mod(a,a,mod)%mod;
-    }
-    return res;
-}
-ll pow_mod(ll a,ll b,ll mod){//a^b
-    ll res=1%mod;
-    for(;b;b>>=1){
-        if(b&1)res=res*a%mod;
-        a=a*a%mod;
+    while(b){
+        if(b&1)res=mul_mod(res,a,mod);
+        a=mul_mod(a,a,mod);
+        b>>=1;
     }
     return res;
 }
