@@ -1,55 +1,76 @@
-//cf 671 E
-#include <bits/stdc++.h>
+//hdu 6333
+#include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-const int MAXN=1<<20;
+const int MAXN=1e5+10;
+const int MOD=1e9+7;
+int block;
 struct node{
     int l,r,id;
-}Q[MAXN];
-int n,m,k;
-int block;
-int a[MAXN];
-int pre[MAXN];
-ll cnt[MAXN];
-ll ANS,ans[MAXN];
+}no[MAXN];
 bool cmp(node x,node y){
     if(x.l/block==y.l/block)return x.r<y.r;
     else return x.l/block<y.l/block;
 }
-void add(int x){
-    ANS+=cnt[pre[x]^k];
-    cnt[pre[x]]++;
+int ans[MAXN];
+int fact[MAXN];
+int invfact[MAXN];
+ll pow_mod(ll a,ll b){
+    ll res=1;
+    while(b){
+        if(b&1)res=res*a%MOD;
+        a=a*a%MOD;
+        b>>=1;
+    }
+    return res;
 }
-void del(int x){
-    cnt[pre[x]]--;
-    ANS-=cnt[pre[x]^k];
+ll fun(ll n,ll m){
+    return (1LL*fact[n]*invfact[m])%MOD*invfact[n-m]%MOD;
 }
 int main(){
-    scanf("%d%d%d",&n,&m,&k);
-    block=(int)sqrt(n);
-    pre[0]=0;
+    int n=100000;
+    fact[0]=1;
     for(int i=1;i<=n;i++){
-        scanf("%d",&a[i]);
-        pre[i]=a[i]^pre[i-1];
+        fact[i]=1LL*fact[i-1]*i%MOD;
     }
-    for(int i=1;i<=m;i++){
-        scanf("%d%d",&Q[i].l,&Q[i].r);
-        Q[i].id=i;
+    invfact[n]=pow_mod(fact[n],MOD-2);
+    for(int i=n;i>=1;i--){
+        invfact[i-1]=1LL*invfact[i]*i%MOD;
     }
-    sort(Q+1,Q+1+m,cmp);
-    ANS=0;
-    memset(cnt,0,sizeof(cnt));
-    cnt[0]=1;
-    int L=1,R=0;
-    for(int i=1;i<=m;i++){
-        while(L>Q[i].l){L--;add(L-1);};
-        while(L<Q[i].l){del(L-1);L++;}
-        while(R<Q[i].r){R++;add(R);};
-        while(R>Q[i].r){del(R);R--;};
-        ans[Q[i].id]=ANS;
+    int q;
+    scanf("%d",&q);
+    block=(int)sqrt(100000);
+    for(int i=1;i<=q;i++){
+        scanf("%d%d",&no[i].r,&no[i].l);
+        no[i].id=i;
     }
-    for(int i=1;i<=m;i++){
-        printf("%lld\n",ans[i]);
+    sort(no+1,no+1+q,cmp);
+    int L=1,R=1;
+    ll now=2;
+    int inv2=pow_mod(2,MOD-2);
+    for(int i=1;i<=q;i++){
+        while(R<no[i].r){
+            now=(now*2-fun(R,L)+MOD)%MOD;
+            R++;
+        }
+        while(L>no[i].l){
+            now=(now-fun(R,L)+MOD)%MOD;
+            L--;
+        }
+        while(R>no[i].r){
+            R--;
+            now+=fun(R,L);
+            now%=MOD;
+            now=now*inv2%MOD;
+        }
+        while(L<no[i].l){
+            L++;
+            now=(now+fun(R,L))%MOD;
+        }
+        ans[no[i].id]=now;
+    }
+    for(int i=1;i<=q;i++){
+        printf("%d\n",ans[i]);
     }
     return 0;
 }
