@@ -72,4 +72,5 @@ int main() {
 			printf("%lld\n", dist[x] + dist[y] - 2 * dist[lca(x, y)]);
 		}
 	}
+	return 0;
 }
