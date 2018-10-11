@@ -96,27 +96,36 @@ int main(){
 \subsection{Fast Power}
 \begin{lstlisting}
 typedef long long ll;
+void add(ll &a,ll b,ll mod){
+    a+=b;
+    a%=mod;
+}
 ll mul_mod(ll a,ll b,ll mod){
     ll res=0;
-    for(;b;b>>=1){
-        if(b&1)res=(res+a)%mod;
-        a=(a<<1)%mod;
+    while(b){
+        if(b&1)add(res,a,mod);
+        add(a,a,mod);
+        b>>=1;
     }
     return res;
 }
-ll pow_mod(ll a,ll b,ll mod){//a^b
-    ll res=1;
-    for(;b;b>>=1){
-        if(b&1)res=mul_mod(res,a,mod)%mod;
-        a=mul_mod(a,a,mod)%mod;
-    }
-    return res;
+/*
+ll mul_mod(ll a,ll b,ll mod){
+    a%=mod;
+    b%=mod;
+    ll c=(long double)a*b/mod;
+    ll ans=a*b-c*mod;
+    if(ans<0)ans+=mod;
+    else if(ans>mod)ans-=mod;
+    return ans;
 }
+*/
 ll pow_mod(ll a,ll b,ll mod){//a^b
-    ll res=1;
-    for(;b;b>>=1){
-        if(b&1)res=res*a%mod;
-        a=a*a%mod;
+    ll res=1%mod;
+    while(b){
+        if(b&1)res=mul_mod(res,a,mod);
+        a=mul_mod(a,a,mod);
+        b>>=1;
     }
     return res;
 }
@@ -148,6 +157,30 @@ int p=37;
 inv[1]=1;
 for(int i=2;i<=40;i++){
     inv[i]=(p-(p/i))*inv[p%i]%p;
+}
+//fact invfact
+int fact[MAXN];
+int invfact[MAXN];
+ll pow_mod(ll a,ll b){
+    ll res=1;
+    while(b){
+        if(b&1)res=res*a%MOD;
+        a=a*a%MOD;
+        b>>=1;
+    }
+    return res;
+}
+ll fun(ll n,ll m){
+    return (1LL*fact[n]*invfact[m])%MOD*invfact[n-m]%MOD;
+}
+int n=100000;
+fact[0]=1;
+for(int i=1;i<=n;i++){
+    fact[i]=1LL*fact[i-1]*i%MOD;
+}
+invfact[n]=pow_mod(fact[n],MOD-2);
+for(int i=n;i>=1;i--){
+    invfact[i-1]=1LL*invfact[i]*i%MOD;
 }
 \end{lstlisting}
 \subsection{Eular phi}
@@ -206,21 +239,23 @@ bool Miller_Rabin(ll n, int s){//s is testing frequency . true -> n is prime
 \end{lstlisting}
 \subsubsection{Eratosthenes Sieve}
 \begin{lstlisting}
-const int MAXN=1e5+5;	
-int prime[MAXN];//1 base	
-bool is_prime[MAXN];	
-int sieve(int n){	
-    int cnt=0;	
-    rep(i,0,n)is_prime[i]=true;	
-    is_prime[0]=is_prime[1]=false;	
-    rep(i,2,n){	
-        if(is_prime[i]){	
-            prime[++cnt]=i;	
-            for(int j=i*2;j<=n;j+=i)is_prime[j]=false;	
-        }	
-    }	
-    return cnt;	
+#define rep(i,a,b) for(int i=a;i<=b;i++)
+const int MAXN=1e5+5;
+int prime[MAXN];//1 base
+bool is_prime[MAXN];
+int sieve(int n){
+    int cnt=0;
+    rep(i,0,n)is_prime[i]=true;
+    is_prime[0]=is_prime[1]=false;
+    rep(i,2,n){
+        if(is_prime[i]){
+            prime[++cnt]=i;
+            for(int j=i;j<=n/i;j++)is_prime[i*j]=false;
+        }
+    }
+    return cnt;
 }
+
 \end{lstlisting}
 \subsubsection{Segment Sieve}
 \begin{lstlisting}
@@ -246,6 +281,67 @@ int segment_sieve(ll a,ll b){
         if(is_prime[i])prime[++cnt]=i+a;	
     }	
     return cnt;	
+}
+\end{lstlisting}
+\subsubsection{primesON}
+\begin{lstlisting}
+const int MAXN=2e5+10;
+int v[MAXN],prime[MAXN];
+int cnt;
+void primes(int n){
+    memset(v,0,sizeof(v));
+    cnt=0;
+    for(int i=2;i<=n;i++){
+        if(v[i]==0){
+            v[i]=i;
+            prime[++cnt]=i;
+        }
+        for(int j=1;j<=cnt;j++){
+            if(prime[j]>v[i]||prime[j]>n/i)break;
+            v[i*prime[j]]=prime[j];
+        }
+    }
+}
+\end{lstlisting}
+\subsubsection{divide}
+\begin{lstlisting}
+// Vijos 1786
+const int MAXN=1e5+10;
+int cnt;
+int num[MAXN];
+int p[MAXN];
+void divide(int n){
+    cnt=0;
+    for(int i=2;1LL*i*i<=n;i++){
+        if(n%i==0){
+            p[++cnt]=i,num[cnt]=0;
+        }
+        while(n%i==0)n/=i,num[cnt]++;
+    }
+    if(n>1){
+        p[++cnt]=n,num[cnt]=1;
+    }
+}
+int main(){
+    int n;
+    scanf("%d",&n);
+    divide(n);
+    printf("%d",p[2]);
+    return 0;
+}
+\end{lstlisting}
+\subsubsection{fact}
+\begin{lstlisting}
+int main(){
+    int n;
+    scanf("%d",&n);
+    primes(n);
+    for(int i=1;i<=cnt;i++){
+        int p=prime[i],c=0;
+        for(int j=n;j;j/=p)c+=j/p;
+        printf("%d %d\n",p,c);
+    }
+    return 0;
 }
 \end{lstlisting}
 \subsection{Matrix}
@@ -299,7 +395,107 @@ int main(){
     return 0;
 }
 \end{lstlisting}
-\subsection{ombinatorics}
+\subsubsection{pointchanging}
+\begin{lstlisting}
+#include<bits/stdc++.h>
+using namespace std;
+const double PI=acos(-1.0);
+struct Matrix{
+    double a[3][3];
+    void init(){
+        for(int i=0;i<3;i++){
+            for(int j=0;j<3;j++){
+                a[i][j]=0;
+            }
+        }
+    }
+    void print(){
+        for(int i=0;i<3;i++){
+            for(int j=0;j<3;j++){
+                cout<<a[i][j]<<" ";
+            }
+            cout<<endl;
+        }
+        cout<<"-----------"<<endl;
+    }
+};
+Matrix operator*(const Matrix& lhs,const Matrix& rhs){
+    Matrix res;
+    res.init();
+    for(int i=0;i<3;i++){
+        for(int j=0;j<3;j++){
+            for(int k=0;k<3;k++){
+                res.a[i][j]+=lhs.a[i][k]*rhs.a[k][j];
+            }
+        }
+    }
+    return res;
+}
+const int MAXN=1e4+10;
+double x[MAXN],y[MAXN];
+int main(){
+
+    int n,m;
+    scanf("%d%d",&n,&m);
+    for(int i=1;i<=n;i++){
+        scanf("%lf%lf",&x[i],&y[i]);
+    }
+    Matrix base;
+    base.init();
+    base.a[0][0]=base.a[1][1]=base.a[2][2]=1;
+    char op[3];
+    Matrix now;
+    while(m--){
+        scanf("%s",op);
+        now.init();
+        if(op[0]=='X'){
+            now.a[0][0]=1;
+            now.a[1][1]=-1;
+            now.a[2][2]=1;
+        }else if(op[0]=='Y'){
+            now.a[0][0]=-1;
+            now.a[1][1]=1;
+            now.a[2][2]=1;
+        }else if(op[0]=='M'){
+            double p,q;
+            scanf("%lf%lf",&p,&q);
+            now.a[0][0]=1;
+            now.a[1][1]=1;
+            now.a[2][2]=1;
+            now.a[0][2]=p;
+            now.a[1][2]=q;
+        }else if(op[0]=='S'){
+            double L;
+            scanf("%lf",&L);
+            now.a[0][0]=L;
+            now.a[1][1]=L;
+            now.a[2][2]=1;
+        }else if(op[0]=='R'){
+            double r;
+            scanf("%lf",&r);
+            r=r/180*PI;
+            now.a[0][0]=cos(r);
+            now.a[0][1]=-sin(r);
+            now.a[1][0]=sin(r);
+            now.a[1][1]=cos(r);
+            now.a[2][2]=1;
+        }
+        base=now*base;
+    }
+
+    for(int i=1;i<=n;i++){
+        Matrix ans;
+        ans.init();
+        ans.a[0][0]=x[i];
+        ans.a[1][0]=y[i];
+        ans.a[2][0]=1;
+        ans=base*ans;
+        printf("%.1f %.1f\n",ans.a[0][0],ans.a[1][0]);
+    }
+    return 0;
+}
+\end{lstlisting}
+\subsection{Combinatorics}
 \subsubsection{Combination}
 \begin{lstlisting}
 //2^n-C(0,n)...C(k-1,n)=C(k,n)+...+C(n,n)
@@ -342,6 +538,25 @@ int main(){
         ans=(a-ans+MOD)%MOD;
         printf("Case #%d: %I64d\n",++kase,ans);
     }
+    return 0;
+}
+\end{lstlisting}
+\subsection{SumRamainder}
+\begin{lstlisting}
+//cf 616 E
+const int MOD=1e9+7;
+int main(){
+    ll n,k,ans;
+    scanf("%lld%lld",&k,&n);
+    ans=n%MOD*(k%MOD);
+    ans%=MOD;
+    ll inv2=MOD-MOD/2;
+    for(ll x=1,gx;x<=n;x=gx+1){
+        gx=k/x?min(k/(k/x),n):n;
+        ans-=((k/x)%MOD*((x+gx)%MOD)%MOD*((gx-x+1)%MOD)%MOD*inv2)%MOD;
+        if(ans<0)ans+=MOD;
+    }
+    printf("%lld",ans);
     return 0;
 }
 \end{lstlisting}
@@ -469,31 +684,177 @@ int work(){
     return 0;
 }
 \end{lstlisting}
+\subsection{SaHash}
+\begin{lstlisting}
+#include<bits/stdc++.h>
+using namespace std;
+typedef unsigned long long ull;
+const int MAXN=3e5+10;
+const int P=131;
+char s[MAXN];
+int len;
+ull base[MAXN];
+ull f[MAXN];
+int sa[MAXN],height[MAXN];
+ull H(int l,int r){
+    return f[r]-f[l-1]*base[r-l+1];
+}
+int lcp(int x,int y){
+    int l=0,r=min(len-x+1,len-y+1),ans=0;
+    while(l<=r){
+        int mid=(l+r)>>1;
+        if(H(x,x+mid-1)==H(y,y+mid-1)){
+            ans=mid;
+            l=mid+1;
+        }else{
+            r=mid-1;
+        }
+    }
+    return ans;
+}
+bool cmp(int x,int y){
+    int d=lcp(x,y);
+    return s[x+d]<s[y+d];
+}
+void calc_height(){
+    for(int i=2;i<=len;i++){
+        height[i]=lcp(sa[i-1],sa[i]);
+    }
+}
+int main(){
+    scanf("%s",s+1);
+    len=strlen(s+1);
+    base[0]=1;
+    for(int i=1;i<=len;i++){
+        sa[i]=i;
+        base[i]=base[i-1]*P;
+        f[i]=f[i-1]*P+(s[i]-'a'+1);
+    }
+    sort(sa+1,sa+1+len,cmp);
+    calc_height();
+    for(int i=1;i<=len;i++){
+        printf("%d%c",sa[i]-1," \n"[i==len]);
+    }
+    for(int i=1;i<=len;i++){
+        printf("%d%c",height[i]," \n"[i==len]);
+    }
+    return 0;
+}
+\end{lstlisting}
+\subsection{SA}
+\begin{lstlisting}
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+#include<vector>
+using namespace std;
+const int SIZE = 300010, INF = 1 << 30;
+int a[SIZE], sa[SIZE], rk[SIZE], fir[SIZE], sec[SIZE], c[SIZE], h[SIZE];
+char str[SIZE];
+int len;
+bool comp(int i, int j, int k){
+	return sec[i] == sec[j] && sec[i + k] == sec[j + k];
+}
+void sufarr(int n){
+	int i, p, l, m = 200;
+	for (i = 0;i < m;i++) c[i] = 0;
+	for (i = 0;i < n;i++) c[rk[i] = a[i]]++;
+	for (i = 1;i < m;i++) c[i] += c[i - 1];
+	for (i = n - 1;i >= 0;i--) sa[--c[a[i]]] = i;
+	for (l = p = 1;p < n;l *= 2, m = p)
+	{
+		for (p = 0, i = n - l;i < n;i++) sec[p++] = i;
+		for (i = 0;i < n;i++)
+			if (sa[i] >= l) sec[p++] = sa[i] - l;
+		for (i = 0;i < n;i++) fir[i] = rk[sec[i]];
+		for (i = 0;i < m;i++) c[i] = 0;
+		for (i = 0;i < n;i++) c[fir[i]]++;
+		for (i = 1;i < m;i++) c[i] += c[i - 1];
+		for (i = n - 1;i >= 0;i--) sa[--c[fir[i]]] = sec[i];
+		memcpy(sec, rk, sizeof(rk));
+		rk[sa[0]] = 0;
+		for (i = p = 1;i < n;i++)
+			rk[sa[i]] = comp(sa[i], sa[i - 1], l) ? p - 1 : p++;
+	}
+}
+void calh(){
+	int i, j, k = 0;
+	for (i = 1;i <= len;i++) rk[sa[i]] = i;
+	for (i = 0;i < len;h[rk[i++]] = k)
+		for (k ? k-- : 0, j = sa[rk[i] - 1];a[i + k] == a[j + k];k++);
+}
+int main(){
+	scanf("%s", str);
+	len = strlen(str);
+	for (int i = 0;i < len;i++) a[i] = str[i];
+	a[len] = 0;
+	sufarr(len + 1);
+	calh();
+	for(int i = 1; i <= len; i++) printf("%d ", sa[i]); puts("");
+	for(int i = 1; i <= len; i++) printf("%d ", h[i]); puts("");
+}
+\end{lstlisting}
 \subsection{HashString}
 \begin{lstlisting}
-const ll B1=1e7+7;
-const ll B2=1e9+7;
-char pa[10004];
-char tx[1000006];
-int work(){
-    int T;
-    scanf("%d",&T);
-    while(T--){
-        scanf("%s%s",pa,tx);
-        int pl=strlen(pa);
-        int tl=strlen(tx);
-        ll w=1;
-        rep(i,1,pl)w=(w*B1)%B2;
-        ll ph=0,th=0;
-        rep(i,0,pl-1){
-            ph=(ph*B1+pa[i])%B2;
-            th=(th*B1+tx[i])%B2;
+//poj 3974
+#include<cstdio>
+#include<algorithm>
+#include<cstring>
+using namespace std;
+typedef unsigned long long ull;
+const int MAXN=1e6+10;
+char s[MAXN];
+ull a[MAXN];
+ull b[MAXN];
+ull base[MAXN];
+inline ull H(int i, int j) {
+	return (a[j] - a[i - 1] * base[j - i + 1]);
+}
+inline ull H2(int i, int j) {
+	return (b[i] - b[j + 1] * base[j - i + 1]);
+}
+int main(){
+    base[0]=1;
+    for(int i=1;i<MAXN;i++){
+        base[i]=base[i-1]*131;
+    }
+    int kase=0;
+    for(;;){
+        scanf("%s",s+1);
+        if(s[1]=='E')break;
+        int len=strlen(s+1);
+        a[0]=b[len+1]=0;
+        for(int i=1;i<=len;i++){
+            a[i]=a[i-1]*131+s[i]-'a';
         }
-        int ans=0;
-        for(int i=0;i+pl<=tl;i++){
-            if(ph==th)ans++;
-            if(i+pl<tl)th=(th*B1+tx[i+pl]-tx[i]*w)%B2;
+        for(int i=len;i>=1;i--){
+            b[i]=b[i+1]*131+s[i]-'a';
         }
+        int ans=1;
+        for(int pos=1;pos<=len;pos++){
+            int l=1,r=min(pos-1,len-pos);
+            while(l<=r){
+                int mid=(l+r)>>1;
+                if(H(pos-mid,pos-1)==H2(pos+1,pos+mid)){
+                    ans=max(2*mid+1,ans);
+                    l=mid+1;
+                }else{
+                    r=mid-1;
+                }
+            }
+            l=1,r=min(pos-1,len-pos+1);
+            while(l<=r){
+                int mid=(l+r)>>1;
+                if(H(pos-mid,pos-1)==H2(pos,pos+mid-1)){
+                    ans=max(2*mid,ans);
+                    l=mid+1;
+                }else{
+                    r=mid-1;
+                }
+            }
+        }
+        printf("Case %d: ",++kase);
         printf("%d\n",ans);
     }
     return 0;
@@ -584,6 +945,79 @@ int main(){
         rbt.insert({now,i});
     }
     printf("%I64d",ans);
+    return 0;
+}
+\end{lstlisting}
+\subsubsection{stack}
+\begin{lstlisting}
+//poj 2559
+#include<cstdio>
+#include<algorithm>
+using namespace std;
+typedef long long ll;
+const int MAXN=1e5+10;
+int a[MAXN];
+int w[MAXN];
+int stk[MAXN];
+int top;
+int main(){
+    int n;
+    while(scanf("%d",&n),n){
+        ll ans=0;
+        top=0;
+        stk[top]=0;
+        for(int i=1;i<=n+1;i++){
+            if(i<=n)scanf("%d",&a[i]);
+            else a[i]=0;
+            if(a[i]>a[stk[top]]){
+                stk[++top]=i;
+                w[top]=1;
+            }else{
+                int width=0;
+                while(a[i]<a[stk[top]]){
+                    width+=w[top];
+                    ans=max(ans,1LL*a[stk[top]]*width);
+                    top--;
+                }
+                stk[++top]=i;
+                w[top]=width+1;
+            }
+        }
+        printf("%lld\n",ans);
+    }
+    return 0;
+}
+\end{lstlisting}
+\subsubsection{queue}
+\begin{lstlisting}
+//ch 1201
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN=3e5+10;
+ll sum[MAXN];
+int que[MAXN];
+int st,ed;
+int main(){
+    int n,m;
+    scanf("%d%d",&n,&m);
+    sum[0]=0;
+    st=ed=0;
+    que[ed++]=0;
+    ll ans=0;
+    for(int i=1;i<=n;i++){
+        scanf("%lld",&sum[i]);
+        sum[i]+=sum[i-1];
+        while(i-que[st]>m){
+            st++;
+        }
+        ans=max(ans,sum[i]-sum[que[st]]);
+        while(st!=ed&&sum[que[ed-1]]>=sum[i]){
+            ed--;
+        }
+        que[ed++]=i;
+    }
+    printf("%lld",ans);
     return 0;
 }
 \end{lstlisting}
@@ -943,6 +1377,308 @@ int main(){
             }
         }
 
+    }
+    return 0;
+}
+\end{lstlisting}
+\subsection{block}
+\begin{lstlisting}
+//poj 3468
+#include <algorithm>
+#include  <iostream>
+#include   <cstring>
+#include    <string>
+#include    <cstdio>
+#include    <vector>
+#include     <stack>
+#include     <queue>
+#include     <cmath>
+#include       <set>
+#include       <map>
+using namespace std;
+#define rep(i,a,b) for(int i=a;i<=b;i++)
+#define per(i,a,b) for(int i=a;i>=b;i--)
+#define clr(a,x) memset(a,x,sizeof(a))
+#define pb push_back
+#define all(x) (x).begin(),(x).end()
+#define fi first
+#define se second
+#define SZ(x) ((int)(x).size())
+typedef unsigned long long ull;
+typedef long long ll;
+typedef vector<int> vi;
+typedef pair<int,int> pii;
+/*************head******************/
+const int MAXN=1e5+10;
+int L[MAXN],R[MAXN],pos[MAXN];
+ll a[MAXN],b[MAXN],c[MAXN];
+int t;
+void update(int x,int y,int z){
+    int l=pos[x];
+    int r=pos[y];
+    if(l==r){
+        for(int i=x;i<=y;i++){
+            a[i]+=z;
+        }
+        b[l]+=1LL*z*(y-x+1);
+    }else{
+        for(int i=l+1;i<r;i++){
+            c[i]+=z;
+        }
+        for(int i=x;i<=R[l];i++){
+            a[i]+=z;
+        }
+        b[l]+=1LL*z*(R[l]-x+1);
+        for(int i=L[r];i<=y;i++){
+            a[i]+=z;
+        }
+        b[r]+=1LL*z*(y-L[r]+1);
+    }
+}
+ll query(int x,int y){
+    ll res=0;
+    int l=pos[x];
+    int r=pos[y];
+    if(l==r){
+        for(int i=x;i<=y;i++){
+            res+=a[i];
+        }
+        res+=c[l]*(y-x+1);
+    }else{
+        for(int i=l+1;i<r;i++){
+            res+=c[i]*(R[i]-L[i]+1)+b[i];
+        }
+        for(int i=x;i<=R[l];i++){
+            res+=a[i];
+        }
+        res+=c[l]*(R[l]-x+1);
+        for(int i=L[r];i<=y;i++){
+            res+=a[i];
+        }
+        res+=c[r]*(y-L[r]+1);
+    }
+    return res;
+}
+int main(){
+    int n,q;
+    scanf("%d%d",&n,&q);
+    t=sqrt(n);
+    for(int i=1;i<=t;i++){
+        L[i]=(i-1)*t+1;
+        R[i]=i*t;
+    }
+    if(R[t]<n){
+        t++;
+        L[t]=R[t-1]+1;
+        R[t]=n;
+    }
+    for(int i=1;i<=n;i++){
+        scanf("%lld",&a[i]);
+    }
+    for(int i=1;i<=t;i++){
+        for(int j=L[i];j<=R[i];j++){
+            pos[j]=i;
+            b[i]+=a[j];
+        }
+    }
+    char op[5];
+    while(q--){
+        int x,y;
+        scanf("%s%d%d",op,&x,&y);
+        if(op[0]=='Q'){
+            printf("%lld\n",query(x,y));
+        }else{
+            int z;
+            scanf("%d",&z);
+            update(x,y,z);
+        }
+    }
+    return 0;
+}
+\end{lstlisting}
+\subsection{Treap}
+\begin{lstlisting}
+#include <algorithm>
+#include  <iostream>
+#include   <cstring>
+#include    <string>
+#include    <cstdio>
+#include    <vector>
+#include     <stack>
+#include     <queue>
+#include     <cmath>
+#include       <set>
+#include       <map>
+using namespace std;
+#define rep(i,a,b) for(int i=a;i<=b;i++)
+#define per(i,a,b) for(int i=a;i>=b;i--)
+#define clr(a,x) memset(a,x,sizeof(a))
+#define pb push_back
+#define all(x) (x).begin(),(x).end()
+#define fi first
+#define se second
+#define SZ(x) ((int)(x).size())
+typedef unsigned long long ull;
+typedef long long ll;
+typedef vector<int> vi;
+typedef pair<int,int> pii;
+/*************head******************/
+const int SIZE=1e5+10;
+struct Treap{
+    int l,r;
+    int val,dat;
+    int cnt,sz;
+}a[SIZE];
+int tot,root,n,INF=0x7fffffff;
+int New(int val){
+    a[++tot].val=val;
+    a[tot].dat=rand();
+    a[tot].cnt=a[tot].sz=1;
+    return tot;
+}
+void Update(int p){
+    a[p].sz=a[a[p].l].sz+a[a[p].r].sz+a[p].cnt;
+}
+void Build(){
+    New(-INF);
+    New(INF);
+    root=1;
+    a[1].r=2;
+    Update(root);
+}
+int GetRankByVal(int p,int val){
+    if(p==0)return 0;
+    if(val==a[p].val)return a[a[p].l].sz+1;
+    if(val<a[p].val)return GetRankByVal(a[p].l,val);
+    return GetRankByVal(a[p].r,val)+a[a[p].l].sz+a[p].cnt;
+}
+int GetValByRank(int p,int rk){
+    if(p==0)return INF;
+    if(a[a[p].l].sz>=rk)return GetValByRank(a[p].l,rk);
+    if(a[a[p].l].sz+a[p].cnt>=rk)return a[p].val;
+    return GetValByRank(a[p].r,rk-a[a[p].l].sz-a[p].cnt);
+}
+void zig(int &p){
+    int q=a[p].l;
+    a[p].l=a[q].r;
+    a[q].r=p;
+    p=q;
+    Update(a[p].r);
+    Update(p);
+}
+void zag(int &p){
+    int q=a[p].r;
+    a[p].r=a[q].l;
+    a[q].l=p;
+    p=q;
+    Update(a[p].l);
+    Update(p);
+}
+void Insert(int &p,int val){
+    if(p==0){
+        p=New(val);
+        return;
+    }
+    if(val==a[p].val){
+        a[p].cnt++;
+        Update(p);
+        return;
+    }
+    if(val<a[p].val){
+        Insert(a[p].l,val);
+        if(a[p].dat<a[a[p].l].dat)zig(p);
+    }else{
+        Insert(a[p].r,val);
+        if(a[p].dat<a[a[p].r].dat)zag(p);
+    }
+    Update(p);
+}
+int GetPre(int val){
+    int ans=1;
+    int p=root;
+    while(p){
+        if(val==a[p].val){
+            if(a[p].l>0){
+                p=a[p].l;
+                while(a[p].r>0)p=a[p].r;
+                ans=p;
+            }
+            break;
+        }
+        if(a[p].val<val&&a[p].val>a[ans].val)ans=p;
+        p=val<a[p].val?a[p].l:a[p].r;
+    }
+    return a[ans].val;
+}
+int GetNext(int val){
+    int ans=2;
+    int p=root;
+    while(p){
+        if(val==a[p].val){
+            if(a[p].r>0){
+                p=a[p].r;
+                while(a[p].l>0)p=a[p].l;
+                ans=p;
+            }
+            break;
+        }
+        if(a[p].val>val&&a[p].val<a[ans].val)ans=p;
+        p=val<a[p].val?a[p].l:a[p].r;
+    }
+    return a[ans].val;
+}
+void Remove(int &p,int val){
+    if(p==0)return;
+    if(val==a[p].val){
+        if(a[p].cnt>1){
+            a[p].cnt--;
+            Update(p);
+            return;
+        }
+        if(a[p].l||a[p].r){
+            if(a[p].r==0||a[a[p].l].dat>a[a[p].r].dat){
+                zig(p);
+                Remove(a[p].r,val);
+            }else{
+                zag(p);
+                Remove(a[p].l,val);
+            }
+            Update(p);
+        }else{
+            p=0;
+        }
+        return;
+    }
+    val<a[p].val?Remove(a[p].l,val):Remove(a[p].r,val);
+    Update(p);
+}
+int main(){
+    Build();
+    int n;
+    scanf("%d",&n);
+    while(n--){
+        int op,x;
+        scanf("%d%d",&op,&x);
+        switch(op){
+        case 1:
+            Insert(root,x);
+            break;
+        case 2:
+            Remove(root,x);
+            break;
+        case 3:
+            printf("%d\n",GetRankByVal(root,x)-1);
+            break;
+        case 4:
+            printf("%d\n",GetValByRank(root,x+1));
+            break;
+        case 5:
+            printf("%d\n",GetPre(x));
+            break;
+        case 6:
+            printf("%d\n",GetNext(x));
+            break;
+        }
     }
     return 0;
 }
@@ -1352,134 +2088,83 @@ int work(){
 }
 \end{lstlisting}
 \subsection{LCA}
-\subsubsection{LCArmq}
+\subsubsection{LCA}
 \begin{lstlisting}
-#include<bits/stdc++.h>
-using namespace std;
-#define rep(i,a,b) for(int i=a;i<=b;i++)
-#define per(i,a,b) for(int i=a;i>=b;i--)
-#define clr(a,x) memset(a,x,sizeof(a))
-#define MAXLOGN 22
-const int MAXV=250000+100;
+//hdu 2586
+const int MAXV=1e5+100;
 int tot;
 int head[MAXV];
 struct Edge{
-    int v,nxt;
+    int v,w,nxt;
     Edge(){}
-    Edge(int v,int nxt):v(v),nxt(nxt){}
+    Edge(int v,int w,int nxt):v(v),w(w),nxt(nxt){}
 }edge[MAXV<<1];
 void init(){
     tot=0;
-    clr(head,-1);
+    memset(head,-1,sizeof(head));
 }
-void add_edge(int u,int v){
-    edge[tot]=Edge(v,head[u]);
+void add_edge(int u,int v,int w){
+    edge[tot]=Edge(v,w,head[u]);
     head[u]=tot++;
 }
-int st[MAXLOGN][2*MAXV];
-vector<int> G[MAXV];
-int vs[MAXV*2-1];
-int depth[MAXV*2-1];
-int id[MAXV];
-void dfs(int v,int p,int d,int &k){
-    id[v]=k;
-    vs[k]=v;
-    depth[k++]=d;
-    for(int i=head[v];~i;i=edge[i].nxt){
-        if(edge[i].v!=p){
-            dfs(edge[i].v,v,d+1,k);
-            vs[k]=v;
-            depth[k++]=d;
-        }
-    }
-}
-int getMin(int x, int y){
-    return depth[x]<depth[y]?x:y;
-}
-void rmq_init(int n){
-    for(int i=1;i<=n;++i) st[0][i]=i;
-    for(int i=1;1<<i<n;++i)
-        for(int j=1;j+(1<<i)-1<=n;++j)
-            st[i][j]=getMin(st[i-1][j],st[i-1][j+(1<<(i-1))]);
-}
-void lca_init(int V){
-    int k=0;
-    dfs(0,-1,0,k);
-    rmq_init(V*2-1);
-}
-int query(int l, int r){
-    int k=31-__builtin_clz(r-l+1);
-    return getMin(st[k][l],st[k][r-(1<<k)+1]);
-}
-int lca(int u,int v){
-    if(u==v) return u;
-    return vs[query(min(id[u],id[v]),max(id[u],id[v]))];
-}
-int dis(int u,int v){
-    return depth[id[u]]+depth[id[v]]-2*depth[id[lca(u,v)]];
-}
-struct DSU{
-    int p[MAXV];
-    void init(int n){rep(i,0,n)p[i]=i;}
-    int findp(int x){return x==p[x]?x:p[x]=findp(p[x]);}
-    bool same(int x,int y){return findp(x)==findp(y);}
-    bool unite(int x,int y){x=findp(x);y=findp(y);p[x]=y;}
-}dsu;
-struct node{
-    int u,v,c;
-    node(){}
-    node(int u,int v,int c):u(u),v(v),c(c){}
-}no[MAXV<<1];
-bool cmp(node a,node b){
-    return a.c>b.c;
-}
-int main(){
-    int N,M;
-    scanf("%d%d",&N,&M);
-    int index=0;
-    for(int i=0;i<N*M;i++){
-        int r=i/M;
-        int c=i%M;
-        for(int j=0;j<2;j++){
-            char op[4];
-            int x;
-            scanf("%s%d",op,&x);
-            if(op[0]=='X')continue;
-            if(op[0]=='R'){
-                if(c==M-1)continue;
-                no[++index]=node(i,i+1,x);
-            }else{
-                if(r==N-1)continue;
-                no[++index]=node(i,i+M,x);
+int t,f[MAXV][22],d[MAXV];
+ll dist[MAXV];
+void bfs(){
+    queue<int> que;
+    que.push(1);
+    d[1]=1;
+    while(!que.empty()){
+        int u=que.front();
+        que.pop();
+        for(int i=head[u];~i;i=edge[i].nxt){
+            int v=edge[i].v;
+            if(d[v])continue;
+            d[v]=d[u]+1;
+            dist[v]=dist[u]+edge[i].w;
+            f[v][0]=u;
+            for(int j=1;j<=t;j++){
+                    f[v][j]=f[f[v][j-1]][j-1];
             }
+            que.push(v);
         }
     }
-    sort(no+1,no+1+index,cmp);
-    init();
-    int V=N*M;
-    dsu.init(V);
-    for(int i=1;i<=index;i++){
-        if(!dsu.same(no[i].u,no[i].v)){
-            add_edge(no[i].u,no[i].v);
-            add_edge(no[i].v,no[i].u);
-            dsu.unite(no[i].u,no[i].v);
+}
+int lca(int x,int y){
+    if(d[x]>d[y])swap(x,y);
+    for(int i=t;i>=0;i--){
+        if(d[f[y][i]]>=d[x])y=f[y][i];
+    }
+    if(x==y)return x;
+    for(int i=t;i>=0;i--){
+        if(f[x][i]!=f[y][i]){
+            x=f[x][i];
+            y=f[y][i];
         }
     }
-    lca_init(V);
-    int q;
-    scanf("%d",&q);
-    while(q--){
-        int x1,y1,x2,y2;
-        scanf("%d%d%d%d",&x1,&y1,&x2,&y2);
-        x1--;
-        y1--;
-        x2--;
-        y2--;
-        int x=x1*M+y1;
-        int y=x2*M+y2;
-        printf("%d\n",dis(x,y));
-    }
-    return 0;
+    return f[x][0];
+}
+int main() {
+	int T;
+	cin>>T;
+	while (T--) {
+        int n,m;
+		cin >> n >> m;
+		t = (int)(log(n) / log(2)) + 1;
+		init();
+		memset(d,0,sizeof(d));
+		for (int i = 1; i < n; i++) {
+			int x, y, z;
+			scanf("%d%d%d", &x, &y, &z);
+			add_edge(x, y, z), add_edge(y, x, z);
+		}
+		bfs();
+		for (int i = 1; i <= m; i++) {
+			int x, y;
+			scanf("%d%d", &x, &y);
+			printf("%lld\n", dist[x] + dist[y] - 2 * dist[lca(x, y)]);
+		}
+	}
+	return 0;
 }
 \end{lstlisting}
 \subsection{Depth-First Traversal}
@@ -2221,58 +2906,79 @@ while (p){
 \end{lstlisting}
 \subsection{Mo Algorithm}
 \begin{lstlisting}
-//cf 671 E
-#include <bits/stdc++.h>
+//hdu 6333
+#include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-const int MAXN=1<<20;
+const int MAXN=1e5+10;
+const int MOD=1e9+7;
+int block;
 struct node{
     int l,r,id;
-}Q[MAXN];
-int n,m,k;
-int block;
-int a[MAXN];
-int pre[MAXN];
-ll cnt[MAXN];
-ll ANS,ans[MAXN];
+}no[MAXN];
 bool cmp(node x,node y){
     if(x.l/block==y.l/block)return x.r<y.r;
     else return x.l/block<y.l/block;
 }
-void add(int x){
-    ANS+=cnt[pre[x]^k];
-    cnt[pre[x]]++;
+int ans[MAXN];
+int fact[MAXN];
+int invfact[MAXN];
+ll pow_mod(ll a,ll b){
+    ll res=1;
+    while(b){
+        if(b&1)res=res*a%MOD;
+        a=a*a%MOD;
+        b>>=1;
+    }
+    return res;
 }
-void del(int x){
-    cnt[pre[x]]--;
-    ANS-=cnt[pre[x]^k];
+ll fun(ll n,ll m){
+    return (1LL*fact[n]*invfact[m])%MOD*invfact[n-m]%MOD;
 }
 int main(){
-    scanf("%d%d%d",&n,&m,&k);
-    block=(int)sqrt(n);
-    pre[0]=0;
+    int n=100000;
+    fact[0]=1;
     for(int i=1;i<=n;i++){
-        scanf("%d",&a[i]);
-        pre[i]=a[i]^pre[i-1];
+        fact[i]=1LL*fact[i-1]*i%MOD;
     }
-    for(int i=1;i<=m;i++){
-        scanf("%d%d",&Q[i].l,&Q[i].r);
-        Q[i].id=i;
+    invfact[n]=pow_mod(fact[n],MOD-2);
+    for(int i=n;i>=1;i--){
+        invfact[i-1]=1LL*invfact[i]*i%MOD;
     }
-    sort(Q+1,Q+1+m,cmp);
-    ANS=0;
-    memset(cnt,0,sizeof(cnt));
-    cnt[0]=1;
-    int L=1,R=0;
-    for(int i=1;i<=m;i++){
-        while(L>Q[i].l){L--;add(L-1);};
-        while(L<Q[i].l){del(L-1);L++;}
-        while(R<Q[i].r){R++;add(R);};
-        while(R>Q[i].r){del(R);R--;};
-        ans[Q[i].id]=ANS;
+    int q;
+    scanf("%d",&q);
+    block=(int)sqrt(100000);
+    for(int i=1;i<=q;i++){
+        scanf("%d%d",&no[i].r,&no[i].l);
+        no[i].id=i;
     }
-    for(int i=1;i<=m;i++){
-        printf("%lld\n",ans[i]);
+    sort(no+1,no+1+q,cmp);
+    int L=1,R=1;
+    ll now=2;
+    int inv2=pow_mod(2,MOD-2);
+    for(int i=1;i<=q;i++){
+        while(R<no[i].r){
+            now=(now*2-fun(R,L)+MOD)%MOD;
+            R++;
+        }
+        while(L>no[i].l){
+            now=(now-fun(R,L)+MOD)%MOD;
+            L--;
+        }
+        while(R>no[i].r){
+            R--;
+            now+=fun(R,L);
+            now%=MOD;
+            now=now*inv2%MOD;
+        }
+        while(L<no[i].l){
+            L++;
+            now=(now+fun(R,L))%MOD;
+        }
+        ans[no[i].id]=now;
+    }
+    for(int i=1;i<=q;i++){
+        printf("%d\n",ans[i]);
     }
     return 0;
 }
