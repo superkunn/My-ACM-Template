@@ -1,50 +1,41 @@
-//hihocoder 1014
-const int maxnode=2600000+10;
-const int sigma_size=26;
-struct Trie{
-    int ch[maxnode][sigma_size];
-    int val[maxnode];
-    int sz;
-    void init(){sz=0;clr(ch[0],0);}
-    int idx(char c){return c-'a';}
-    void insert(char *s){
-        int u=0,n=strlen(s);
-        rep(i,0,n-1){
-            int x=idx(s[i]);
-            if(!ch[u][x]){
-                ++sz;
-                clr(ch[sz],0);
-                val[sz]=0;
-                ch[u][x]=sz;
-            }
-            u=ch[u][x];
-            val[u]++;
-        }
+//CH 1601
+const int MAXN=1e6+10;
+int trie[MAXN][26];
+int tot=1;
+int cnt[MAXN];
+void Insert(char* str){
+    int len=strlen(str);
+    int p=1;
+    for(int i=0;i<len;i++){
+        int ch=str[i]-'a';
+        if(trie[p][ch]==0)trie[p][ch]=++tot;
+        p=trie[p][ch];
     }
-    int query(char *s){
-        int u=0,n=strlen(s),res=0;
-        rep(i,0,n-1){
-            int x=idx(s[i]);
-            if(!ch[u][x])break;
-            u=ch[u][x];
-            if(i==n-1)res=val[u];
-        }
-        return res;
+    cnt[p]++;
+}
+int query(char* str){
+    int len=strlen(str);
+    int p=1;
+    int ans=0;
+    for(int i=0;i<len;i++){
+        int ch=str[i]-'a';
+        if(trie[p][ch]==0)break;
+        p=trie[p][ch];
+        ans+=cnt[p];
     }
-}trie;
-char s[30];
-int work(){
-    trie.init();
+    return ans;
+}
+char ss[MAXN];
+int main(){
     int n,m;
-    scanf("%d",&n);
-    while(n--){
-        scanf("%s",s);
-        trie.insert(s);
+    scanf("%d%d",&n,&m);
+    for(int i=1;i<=n;i++){
+        scanf("%s",ss);
+        Insert(ss);
     }
-    scanf("%d",&m);
     while(m--){
-        scanf("%s",s);
-        printf("%d\n",trie.query(s));
+        scanf("%s",ss);
+        printf("%d\n",query(ss));
     }
     return 0;
 }
