@@ -39,3 +39,44 @@ int main(){
     }
     return 0;
 }
+// max xor CH 1602
+const int MAXN=2e6+10;
+int trie[MAXN][2];
+int tot=1;
+void Insert(int x){
+    int p=1;
+    for(int i=30;i>=0;i--){
+        int w=(x>>i)&1;
+        if(trie[p][w]==0)trie[p][w]=++tot;
+        p=trie[p][w];
+    }
+}
+int query(int x){
+    int p=1;
+    int ans=0;
+    for(int i=30;i>=0;i--){
+        int w=(x>>i)&1;
+        if(trie[p][w^1]!=0){
+            p=trie[p][w^1];
+            ans+=1<<i;
+        }else{
+            p=trie[p][w];
+        }
+    }
+    return ans;
+}
+int main(){
+    int n;
+    scanf("%d",&n);
+    int x;
+    scanf("%d",&x);
+    Insert(x);
+    int ans=0;
+    for(int i=2;i<=n;i++){
+        scanf("%d",&x);
+        ans=max(ans,query(x));
+        Insert(x);
+    }
+    printf("%d",ans);
+    return 0;
+}
