@@ -25,7 +25,7 @@ struct DSU{
     bool same(int x,int y){return findp(x)==findp(y);}
 }dsu;
 
-//带撤销的并查集
+
 namespace DSU2 {
   const static int MAXN = 100000 + 10;
   int fa[MAXN], ds[MAXN], rk[MAXN];
