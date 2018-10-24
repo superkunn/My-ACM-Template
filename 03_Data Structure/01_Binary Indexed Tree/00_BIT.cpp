@@ -15,7 +15,7 @@ struct BIT{
         for(;i;i-=i&-i)s+=c[i];
         return s;
     }
-    int findpos(int v){
+    int findpos(int v){// >=v,if can't find ,return n+1;
         int sum=0;
         int pos=0;
         int i=1;
