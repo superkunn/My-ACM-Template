@@ -2,21 +2,22 @@
 //add(l,a) add(r+1,-a) sum(pos)
 const int MAXN=100000;
 struct BIT{
-    int n,c[MAXN<<1];
+    int n;
+    ll c[MAXN<<1];
     void init(int _n){
         n=_n;
         rep(i,0,n)c[i]=0;
     }
-    void update(int i,int v){
+    void update(int i,ll v){
         for(;i<=n;i+=i&-i)c[i]+=v;
     }
-    int query(int i){
-        int s=0;
+    ll query(int i){
+        ll s=0;
         for(;i;i-=i&-i)s+=c[i];
         return s;
     }
-    int findpos(int v){// >=v,if can't find ,return n+1;
-        int sum=0;
+    int findpos(ll v){// >=v,if can't find ,return n+1;
+        ll sum=0;
         int pos=0;
         int i=1;
         for(;i<n;i<<=1);
