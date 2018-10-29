@@ -1,5 +1,5 @@
 //hihocoder 1015
- const int MAXN=1e4+10;
+const int MAXN=1e4+10;
 const int MAXM=1e6+10;
 char a[MAXN];
 char b[MAXM];
