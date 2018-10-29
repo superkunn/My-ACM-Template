@@ -563,82 +563,128 @@ int main(){
 \clearpage\section{String Processing}
 \subsection{KMP}
 \begin{lstlisting}
-//MAXN
+//hihocoder 1015
+const int MAXN=1e4+10;
+const int MAXM=1e6+10;
+char a[MAXN];
+char b[MAXM];
 int nxt[MAXN];
-void initkmp(char x[],int m){
-    int i=0,j=nxt[0]=-1;
-    while(i<m){
-        while(j!=-1&&x[i]!=x[j])j=nxt[j];
-        nxt[++i]=++j;
+int f[MAXM];
+int n,m;
+void initkmp(){
+    n=strlen(a);
+    nxt[0]=-1;
+    for(int i=1,j=-1;i<n;i++){
+        while(j>-1&&a[i]!=a[j+1])j=nxt[j];
+        if(a[i]==a[j+1])j++;
+        nxt[i]=j;
     }
 }
-//x:pa y:tx 
-int kmp(char x[],int m,char y[],int n){
-    int i,j,ans;
-    i=j=ans=0;
-    initkmp(x,m);
-    while(i<n){
-        while(j!=-1&&y[i]!=x[j])j=nxt[j];
-        i++,j++;
-        if(j>=m){
-            ans++;
-            j=nxt[j];
-            //pos:i-m
+int kmp(){
+    initkmp();
+    int res=0;
+    m=strlen(b);
+    for(int i=0,j=-1;i<m;i++){
+        while(j>-1&&(j==(n-1)||b[i]!=a[j+1]))j=nxt[j];
+        if(b[i]==a[j+1])j++;
+        f[i]=j;
+        if(f[i]==n-1)res++;
+    }
+    return res;
+}
+int main(){
+    int T;
+    scanf("%d",&T);
+    while(T--){
+        scanf("%s%s",&a,&b);
+        printf("%d\n",kmp());
+    }
+    return 0;
+}
+   
+\end{lstlisting}
+\subsection{Trie}
+\begin{lstlisting}
+//CH 1601
+const int MAXN=1e6+10;
+int trie[MAXN][26];
+int tot=1;
+int cnt[MAXN];
+void Insert(char* str){
+    int len=strlen(str);
+    int p=1;
+    for(int i=0;i<len;i++){
+        int ch=str[i]-'a';
+        if(trie[p][ch]==0)trie[p][ch]=++tot;
+        p=trie[p][ch];
+    }
+    cnt[p]++;
+}
+int query(char* str){
+    int len=strlen(str);
+    int p=1;
+    int ans=0;
+    for(int i=0;i<len;i++){
+        int ch=str[i]-'a';
+        if(trie[p][ch]==0)break;
+        p=trie[p][ch];
+        ans+=cnt[p];
+    }
+    return ans;
+}
+char ss[MAXN];
+int main(){
+    int n,m;
+    scanf("%d%d",&n,&m);
+    for(int i=1;i<=n;i++){
+        scanf("%s",ss);
+        Insert(ss);
+    }
+    while(m--){
+        scanf("%s",ss);
+        printf("%d\n",query(ss));
+    }
+    return 0;
+}
+// max xor CH 1602
+const int MAXN=2e6+10;
+int trie[MAXN][2];
+int tot=1;
+void Insert(int x){
+    int p=1;
+    for(int i=30;i>=0;i--){
+        int w=(x>>i)&1;
+        if(trie[p][w]==0)trie[p][w]=++tot;
+        p=trie[p][w];
+    }
+}
+int query(int x){
+    int p=1;
+    int ans=0;
+    for(int i=30;i>=0;i--){
+        int w=(x>>i)&1;
+        if(trie[p][w^1]!=0){
+            p=trie[p][w^1];
+            ans+=1<<i;
+        }else{
+            p=trie[p][w];
         }
     }
     return ans;
 }
-\end{lstlisting}
-\subsection{Trie}
-\begin{lstlisting}
-//hihocoder 1014
-const int maxnode=2600000+10;
-const int sigma_size=26;
-struct Trie{
-    int ch[maxnode][sigma_size];
-    int val[maxnode];
-    int sz;
-    void init(){sz=0;clr(ch[0],0);}
-    int idx(char c){return c-'a';}
-    void insert(char *s){
-        int u=0,n=strlen(s);
-        rep(i,0,n-1){
-            int x=idx(s[i]);
-            if(!ch[u][x]){
-                ++sz;
-                clr(ch[sz],0);
-                val[sz]=0;
-                ch[u][x]=sz;
-            }
-            u=ch[u][x];
-            val[u]++;
-        }
-    }
-    int query(char *s){
-        int u=0,n=strlen(s),res=0;
-        rep(i,0,n-1){
-            int x=idx(s[i]);
-            if(!ch[u][x])break;
-            u=ch[u][x];
-            if(i==n-1)res=val[u];
-        }
-        return res;
-    }
-}trie;
-char s[30];
-int work(){
-    trie.init();
-    int n,m;
+int main(){
+    int n;
     scanf("%d",&n);
-    while(n--){
-        scanf("%s",s);
-        trie.insert(s);
+    int x;
+    scanf("%d",&x);
+    Insert(x);
+    int ans=0;
+    for(int i=2;i<=n;i++){
+        scanf("%d",&x);
+        ans=max(ans,query(x));
+        Insert(x);
     }
-    scanf("%d",&m);
-    while(m--){
-        scanf("%s",s);
-        printf("%d\n",trie.query(s));
-    }
+    printf("%d",ans);
     return 0;
 }
 \end{lstlisting}
@@ -860,6 +906,77 @@ int main(){
     return 0;
 }
 \end{lstlisting}
+\subsection{Lexorder}
+\begin{lstlisting}
+const int MAXN=2e6+100;
+char a[MAXN],b[MAXN];
+int Lexorder(char *s){
+    int n=strlen(s+1);
+    for(int i=1;i<=n;i++)s[n+i]=s[i];
+    int i=1,j=2,k;
+    while(i<=n&&j<=n){
+        for(k=0;k<=n&&s[i+k]==s[j+k];k++);
+        if(k==n)break;//"aaaaa"
+        if(s[i+k]>s[j+k]){
+            i=i+k+1;
+            if(i==j)i++;
+        }else{
+            j=j+k+1;
+            if(i==j)j++;
+        }
+    }
+    return min(i,j);
+}
+int main(){
+    scanf("%s%s",a+1,b+1);
+    int n=strlen(a+1);
+    int x=Lexorder(a);
+    int y=Lexorder(b);
+    for(int i=0;i<n;i++){
+        int xx=x+i;
+        int yy=y+i;
+        if(a[xx]!=b[yy]){
+            puts("No");
+            return 0;
+        }
+    }
+    puts("Yes");
+    for(int i=0;i<n;i++){
+        int xx=x+i;
+        putchar(a[xx]);
+    }
+    return 0;
+}
+\end{lstlisting}
+\subsection{Zalgorithm}
+\begin{lstlisting}
+const int MAXN=2e6+100;
+int z[MAXN];
+char a[MAXN];
+void z_algorithm(char *a,int len){
+    z[0]=len;
+    for(int i=1,j=1,k;i<len;i=k){
+        if(j<i)j=i;
+        while(j<len && a[j]==a[j-i])++j;
+        z[i]=j-i;
+        k=i+1;
+        while(k+z[k-i]<j)z[k]=z[k-i],++k;
+    }
+}
+int main(){
+    /*
+    b  a b $ a b a b a b
+    10 0 1 0 0 3 0 3 0 1
+    */
+    scanf("%s",a);
+    int n=strlen(a);
+    z_algorithm(a,n);
+    for(int i=0;i<n;i++){
+        printf("%d ",z[i]," \n"[i==n-1]);
+    }
+    return 0;
+}
+\end{lstlisting}
 \clearpage\section{Data Structure}
 \subsection{other}
 \subsubsection{QuickSelect}
@@ -1027,21 +1144,22 @@ int main(){
 //add(l,a) add(r+1,-a) sum(pos)
 const int MAXN=100000;
 struct BIT{
-    int n,c[MAXN<<1];
+    int n;
+    ll c[MAXN<<1];
     void init(int _n){
         n=_n;
         rep(i,0,n)c[i]=0;
     }
-    void update(int i,int v){
+    void update(int i,ll v){
         for(;i<=n;i+=i&-i)c[i]+=v;
     }
-    int query(int i){
-        int s=0;
+    ll query(int i){
+        ll s=0;
         for(;i;i-=i&-i)s+=c[i];
         return s;
     }
-    int findpos(int v){
-        int sum=0;
+    int findpos(ll v){// >=v,if can't find ,return n+1;
+        ll sum=0;
         int pos=0;
         int i=1;
         for(;i<n;i<<=1);
@@ -1197,7 +1315,178 @@ ll query(int L,int R,int l,int r,int rt){
     return ret;
 }
 \end{lstlisting}
-\subsection{Splay Tree}
+\subsubsection{merging}
+\begin{lstlisting}
+//cf 893 F. Subtree Minimum Query
+const int MAXN=1e5+10;
+const int INF=0x3f3f3f3f;
+int a[MAXN];
+vi G[MAXN];
+int tot;
+int dep[MAXN];
+int rt[MAXN];
+int val[MAXN<<6],ls[MAXN<<6],rs[MAXN<<6];
+void push_up(int n){
+    val[n]=min(val[ls[n]],val[rs[n]]);
+}
+void update(int p,int v,int l,int r,int &n){
+    n=++tot;
+    if(l==r){
+        val[n]=v;
+        return;
+    }
+    int m=(l+r)/2;
+    if(p<=m){
+        update(p,v,l,m,ls[n]);
+    }else{
+        update(p,v,m+1,r,rs[n]);
+    }
+    push_up(n);
+}
+int merging(int u,int v){
+    if(!u)return v;
+    if(!v)return u;
+    int t=++tot;
+    ls[t]=merging(ls[u],ls[v]);
+    rs[t]=merging(rs[u],rs[v]);
+    if(ls[t]||rs[t])push_up(t);
+    else val[t]=min(val[u],val[v]);
+    return t;
+}
+int query(int ql,int qr,int l,int r,int n){
+    if(!n)return INF;
+    if(ql==l&&qr==r)return val[n];
+    int m=(l+r)/2;
+    if(qr<=m)return query(ql,qr,l,m,ls[n]);
+    if(ql>m)return query(ql,qr,m+1,r,rs[n]);
+    return min(query(ql,m,l,m,ls[n]),query(m+1,qr,m+1,r,rs[n]));
+}
+void dfs(int u,int p){
+    update(dep[u],a[u],1,MAXN-1,rt[u]);
+    for(int i=0;i<G[u].size();i++){
+        int v=G[u][i];
+        if(v==p)continue;
+        dep[v]=dep[u]+1;
+        dfs(v,u);
+        rt[u]=merging(rt[u],rt[v]);
+    }
+}
+int main(){
+    val[0]=INF;
+    int n,r;
+    scanf("%d%d",&n,&r);
+    for(int i=1;i<=n;i++){
+        scanf("%d",&a[i]);
+    }
+    for(int i=1;i<n;i++){
+        int u,v;
+        scanf("%d%d",&u,&v);
+        G[u].pb(v);
+        G[v].pb(u);
+    }
+    dep[r]=1;
+    dfs(r,0);
+    int m;
+    scanf("%d",&m);
+    int lst=0;
+    while(m--){
+        int x,y;
+        scanf("%d%d",&x,&y);
+        x=(x+lst)%n+1;
+        y=(y+lst)%n;
+        printf("%d\n",lst=query(dep[x],min(MAXN-1,dep[x]+y),1,MAXN-1,rt[x]));
+    }
+    return 0;
+}
+\end{lstlisting}
+\subsection{BST}
+\begin{lstlisting}
+const int SIZE=1e5+10;
+struct BST{
+    int l,r;
+    int val;
+}a[SIZE];
+int tot,root,INF=1<<30;
+int New(int val){
+    a[++tot].val=val;
+    return tot;
+}
+void Build(){
+    New(-INF);
+    New(INF);
+    root=1;
+    a[1].r=2;
+}
+int Get(int p,int val){
+    if(p==0)return 0;
+    if(val==a[p].val)return p;
+    return val<a[p].val?Get(a[p].l,val):Get(a[p].r,val);
+}
+void Insert(int &p,int val){
+    if(p==0){
+        p=New(val);
+        return;
+    }
+    if(val==a[p].val)return;
+    if(val<a[p].val)Insert(a[p].l,val);
+    else Insert(a[p].r,val);
+}
+int GetNext(int val){
+    int ans=2;//a[2].val==INF;
+    int p=root;
+    while(p){
+        if(val==a[p].val){
+            if(a[p].r>0){
+                p=a[p].r;
+                while(a[p].l>0)p=a[p].l;
+                ans=p;
+            }
+            break;
+        }
+        if(a[p].val>val&&a[p].val<a[ans].val)ans=p;
+        p=val<a[p].val?a[p].l:a[p].r;
+    }
+    return ans;
+}
+int GetLast(int val){
+    int ans=1;//a[1].val=-INF;
+    int p=root;
+    while(p){
+        if(val==a[p].val){
+            if(a[p].l>0){
+                p=a[p].l;
+                while(a[p].r>0)p=a[p].r;
+                ans=p;
+            }
+            break;
+        }
+        if(a[p].val<val&&a[p].val>a[ans].val)ans=p;
+        p=val<a[p].val?a[p].l:a[p].r;
+    }
+    return ans;
+}
+void Remove(int val){
+    int &p=root;
+    while(p){
+        if(val==a[p].val)break;
+        p=val<a[p].val?a[p].l:a[p].r;
+    }
+    if(p==0)return;
+    if(a[p].l==0){
+        p=a[p].r;
+    }else if(a[p].r==0){
+        p=a[p].l;
+    }else{
+        int nxt=a[p].r;
+        while(a[nxt].l>0)nxt=a[nxt].l;
+        Remove(a[nxt].val);
+        a[nxt].l=a[p].l;
+        a[nxt].r=a[p].r;
+        p=nxt;
+    }
+}
+\end{lstlisting}
+\subsubsection{Splay}
 \begin{lstlisting}
 #define key_value ch[ch[rt][1]][0]
 const int MAXN=1e5;
@@ -1683,6 +1972,85 @@ int main(){
     return 0;
 }
 \end{lstlisting}
+\subsection{Heap}
+\begin{lstlisting}
+//poj 1456
+const int SIZE=1e5;
+struct Heap{
+    int a[SIZE];
+    int n;
+    void init(){
+        n=0;
+    }
+    void up(int p){
+        while(p>1){
+            if(a[p]>a[p/2]){
+                swap(a[p],a[p/2]);
+                p/=2;
+            }else{
+                break;
+            }
+        }
+    }
+    void push(int val){
+        a[++n]=val;
+        up(n);
+    }
+    int top(){
+        return a[1];
+    }
+    void down(int p){
+        int s=p*2;
+        while(s<=n){
+            if(s<n&&a[s]<a[s+1])s++;
+            if(a[s]>a[p]){
+                swap(a[s],a[p]);
+                p=s;
+                s=p*2;
+            }else{
+                break;
+            }
+        }
+    }
+    void pop(){
+        a[1]=a[n--];
+        down(1);
+    }
+}heap;
+const int MAXN=1e4+10;
+pii P[MAXN];
+int main(){
+    int n;
+    while(~scanf("%d",&n)){
+        for(int i=1;i<=n;i++){
+            int x,y;
+            scanf("%d%d",&x,&y);
+            P[i]=mp(y,x);
+        }
+        sort(P+1,P+1+n);
+        P[0]=mp(0,0);
+        int now=P[n].fi;
+        heap.init();
+        heap.push(P[n].se);
+        ll ans=0;
+        for(int i=n-1;i>=0;i--){
+            if(now==P[i].fi){
+                heap.push(P[i].se);
+            }else{
+                int w=now-P[i].fi;
+                while(heap.n!=0&&w--){
+                    ans+=heap.top();
+                    heap.pop();
+                }
+                heap.push(P[i].se);
+                now=P[i].fi;
+            }
+        }
+        printf("%lld\n",ans);
+    }
+    return 0;
+}
+\end{lstlisting}
 \clearpage\section{Graph Theory}
 \subsection{Union-Find Set}
 \begin{lstlisting}
@@ -1694,6 +2062,67 @@ struct DSU{
     void unite(int x,int y){x=findp(x);y=findp(y);if(x==y)return;p[y]=x;}
     bool same(int x,int y){return findp(x)==findp(y);}
 }dsu;
+\end{lstlisting}
+\subsubsection{reset}
+\begin{lstlisting}
+struct DSU{
+    int p[MAXN],rk[MAXN];
+    int Back[MAXN<<1];
+    int cnt;
+    void init(int n){rep(i,0,n)p[i]=i,rk[i]=1;cnt=0;}
+    int findp(int x){return x==p[x]?x:findp(p[x]);}
+    void unite(int x,int y){
+        x=findp(x);y=findp(y);if(x==y)return;
+        if(rk[x]>rk[y])swap(x,y);
+        if(rk[x]==rk[y])++rk[y],Back[++cnt]=-y;
+        p[x]=y;
+        Back[++cnt]=x;
+    }
+    void save(){cnt=0;}
+    void Cancel(){
+        while(cnt){
+            if(Back[cnt]<0)--rk[-Back[cnt]];
+            else p[Back[cnt]]=Back[cnt];
+            cnt--;
+        }
+    }
+    bool same(int x,int y){return findp(x)==findp(y);}
+}dsu;
+
+
+namespace DSU2 {
+  const static int MAXN = 100000 + 10;
+  int fa[MAXN], ds[MAXN], rk[MAXN];
+  int S[MAXN], top;
+  void init(int n) {
+    for (int i = 1; i <= n; ++ i) {
+      fa[i] = i, rk[i] = ds[i] = 0;
+    }
+    top = 0;
+  }
+  int dis(int x) {
+    int r(0);
+    for (; x != fa[x]; x = fa[x]) r ^= ds[x];
+    return r;
+  }
+  int get(int x) {
+    while (x != fa[x]) x = fa[x];
+    return fa[x];
+  }
+  void merge(int x, int y, int d) {
+    x = get(x); y = get(y);
+    if (x == y) return;
+    if (rk[x] > rk[y]) std::swap(x, y);
+    if (rk[x] == rk[y]) ++ rk[y], S[++ top] = -y;
+    fa[x] = y; ds[x] = d; S[++ top] = x;
+  }
+  void restore(int ed) {
+    for (; top > ed; -- top) {
+      if (S[top] < 0) -- rk[-S[top]];
+      else fa[S[top]] = S[top], ds[S[top]] = 0;
+    }
+  }
+}
 \end{lstlisting}
 \subsection{Minimal Spanning Tree}
 \subsubsection{Kruskal}
@@ -1741,6 +2170,71 @@ int main(){
             }
         }
         printf("%d\n",kruskal());
+    }
+    return 0;
+}
+\end{lstlisting}
+\subsubsection{poj2728}
+\begin{lstlisting}
+const int MAXN=1e3+10;
+int x[MAXN],y[MAXN],z[MAXN];
+double dist[MAXN][MAXN],cost[MAXN][MAXN];
+double dsum,csum,ans;
+int n;
+double len(int a,int b){
+    return cost[a][b]-ans*dist[a][b];
+}
+void prim(){
+    double dt[MAXN],ds[MAXN],dc[MAXN];
+    bool vis[MAXN];
+    for(int i=2;i<=n;i++){
+        dt[i]=len(1,i);
+        ds[i]=dist[1][i];
+        dc[i]=cost[1][i];
+    }
+    memset(vis,0,sizeof(vis));
+    vis[1]=true;
+    dsum=csum=0;
+    for(int i=2;i<=n;i++){
+        int t=-1;
+        for(int j=2;j<=n;j++){
+            if(vis[j])continue;
+            if(t==-1||dt[j]<dt[t])t=j;
+        }
+        dsum+=ds[t];
+        csum+=dc[t];
+        vis[t]=true;
+        for(int j=2;j<=n;j++){
+            if(vis[j])continue;
+            if(len(t,j)<dt[j]){
+                dt[j]=len(t,j);
+                ds[j]=dist[t][j];
+                dc[j]=cost[t][j];
+            }
+        }
+    }
+}
+int main(){
+    while(scanf("%d",&n),n){
+        for(int i=1;i<=n;i++)scanf("%d%d%d",&x[i],&y[i],&z[i]);
+        for(int i=1;i<=n;i++){
+            for(int j=i+1;j<=n;j++){
+                dist[i][j]=sqrt(1.0*(x[i]-x[j])*(x[i]-x[j])+1.0*(y[i]-y[j])*(y[i]-y[j]));
+                dist[j][i]=dist[i][j];
+                cost[i][j]=fabs(z[i]-z[j]);
+                cost[j][i]=cost[i][j];
+            }
+        }
+        dsum=csum=0.0;
+        for(int i=2;i<=n;i++)dsum+=dist[1][i],csum+=cost[1][i];
+        ans=csum/dsum;
+        for(;;){
+            prim();
+            double now=csum/dsum;
+            if(fabs(now-ans)<1e-4)break;
+            else ans=now;
+        }
+        printf("%.3f\n",ans);
     }
     return 0;
 }
@@ -2012,6 +2506,85 @@ int main(){
     }
     return 0;
 } 
+\end{lstlisting}
+\subsubsection{poj3621}
+\begin{lstlisting}
+
+const int MAXN=1e3+10;
+const int MAXE=1e4+10;
+const double INF=1e13;
+int n,m;
+int a[MAXN];
+int tot;
+int head[MAXN];
+struct Edge{
+    int v,w,nxt;
+    Edge(){}
+    Edge(int v,int w,int nxt):v(v),w(w),nxt(nxt){}
+}edge[MAXE];
+void init(){
+    tot=0;
+    clr(head,-1);
+}
+void add_edge(int u,int v,int w){
+    edge[tot]=Edge(v,w,head[u]);
+    head[u]=tot++;
+}
+queue<int> que;
+bool inq[MAXN];
+int qtime[MAXN];
+double d[MAXN];
+int spfa(double now){
+    while(!que.empty())que.pop();
+    clr(qtime,0);
+    clr(inq,0);
+    rep(i,1,n)d[i]=INF;
+    d[1]=0;
+    que.push(1);
+    inq[1]=1;
+    qtime[1]++;
+    while(!que.empty()){
+        int u=que.front();
+        que.pop();
+        inq[u]=0;
+        for(int i=head[u];i!=-1;i=edge[i].nxt){
+            int v=edge[i].v;
+            double w=now*edge[i].w-a[u];
+            if(d[v]>d[u]+w){
+                d[v]=d[u]+w;
+                if(!inq[v]){
+                    que.push(v);
+                    inq[v]=1;
+                    qtime[v]++;
+                    if(qtime[v]>n)return -1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+int main(){
+    scanf("%d%d",&n,&m);
+    for(int i=1;i<=n;i++)scanf("%d",&a[i]);
+    init();
+    for(int i=1;i<=m;i++){
+        int u,v,w;
+        scanf("%d%d%d",&u,&v,&w);
+        add_edge(u,v,w);
+    }
+    double l=0,r=10000,ans;
+    while(r-l>1e-3){
+        double m=(l+r)/2.0;
+        if(spfa(m)==-1){
+            l=m;
+            ans=m;
+        }else{
+            r=m;
+        }
+    }
+    printf("%.2f",l);
+    return 0;
+}
 \end{lstlisting}
 \subsection{Topo Sort}
 \begin{lstlisting}
@@ -2604,6 +3177,67 @@ int main(){
     return 0;
 }
 \end{lstlisting}
+\subsubsection{TreeCOG}
+\begin{lstlisting}
+const int MAXN=16000+10;
+int tot;
+int n;
+int head[MAXN];
+struct Edge{
+    int v,nxt;
+    Edge(){}
+    Edge(int v,int nxt):v(v),nxt(nxt){}
+}edge[MAXN<<1];
+void init(){
+    tot=0;
+    memset(head,-1,sizeof(head));
+}
+void add_edge(int u,int v){
+    edge[tot]=Edge(v,head[u]);
+    head[u]=tot++;
+}
+int mx=0x3f3f3f3f;
+int ans[MAXN];
+int sz[MAXN];
+int cnt=0;
+void dfs(int u,int p){
+    sz[u]=1;
+    int now=1;
+    for(int i=head[u];~i;i=edge[i].nxt){
+        int v=edge[i].v;
+        if(v==p)continue;
+        dfs(v,u);
+        now=max(now,sz[v]);
+        sz[u]+=sz[v];
+    }
+    now=max(now,n-sz[u]);
+    if(now==mx||cnt==0){
+        ans[++cnt]=u;
+    }else if(now<mx){
+        mx=now;
+        cnt=0;
+        ans[++cnt]=u;
+    }
+}
+int main(){
+    scanf("%d",&n);
+    int m=n-1;
+    init();
+    while(m--){
+        int u,v;
+        scanf("%d%d",&u,&v);
+        add_edge(u,v);
+        add_edge(v,u);
+    }
+    dfs(1,-1);
+    sort(ans+1,ans+1+cnt);
+    printf("%d %d\n",mx,cnt);
+    for(int i=1;i<=cnt;i++){
+        printf("%d ",ans[i]);
+    }
+    return 0;
+}
+\end{lstlisting}
 \subsection{Bipartite Graph Matching}
 \subsubsection{Hungry}
 \begin{lstlisting}
@@ -3164,6 +3798,64 @@ Vector Rotate(Vector A,double rad){
 Vector Normal(Vector A){
     double L=Length(A);
     return Vector(-A.y/L,A.x/L);
+}
+\end{lstlisting}
+\clearpage\section{DP}
+\subsection{DigitDp}
+\subsubsection{cf1073e}
+\begin{lstlisting}
+const ll MOD=998244353;
+ll l,r;
+int k;
+pair<ll,ll> dp[22][1<<11];
+bool vis[22][1<<11];
+ll base[22];
+int bt[22];
+int fun(int x){
+    int res=0;
+    while(x){
+        res++;
+        x-=x&-x;
+    }
+    return res;
+}
+pair<ll,ll> dfs(int pos,int pre,bool limit,bool lead){
+    if(pos==0)return fun(pre)<=k?mp(1,0):mp(0,0);
+    if(!limit&&!lead&&vis[pos][pre])return dp[pos][pre];
+    int u=limit?bt[pos]:9;
+    pair<ll,ll> res=mp(0,0);
+    for(int i=0;i<=u;i++){
+        int now=pre;
+        if(lead&&i==0){
+            now=0;
+        }else{
+            now=pre|(1<<i);
+        }
+        pair<ll,ll> tmp=dfs(pos-1,now,limit&&i==bt[pos],lead&&i==0);
+        res.first=(res.first+tmp.first)%MOD;
+        ll w=1LL*i*base[pos]%MOD;
+        w=(w*tmp.first)%MOD;
+        res.second=(res.second+tmp.second+w)%MOD;
+    }
+    if(!limit&&!lead)dp[pos][pre]=res,vis[pos][pre]=true;
+    return res;
+}
+ll gao(ll x){
+    int pos=0;
+    while(x){
+        bt[++pos]=x%10;
+        x/=10;
+    }
+    return dfs(pos,0,true,true).second;
+}
+int main(){
+    base[1]=1;
+    for(int i=2;i<=21;i++){
+        base[i]=base[i-1]*10%MOD;
+    }
+    scanf("%I64d%I64d%d",&l,&r,&k);
+    printf("%I64d",(gao(r)-gao(l-1)+MOD)%MOD);
+    return 0;
 }
 \end{lstlisting}
 
