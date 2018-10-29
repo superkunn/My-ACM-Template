@@ -1,25 +1,39 @@
-//MAXN
+//hihocoder 1015
+ const int MAXN=1e4+10;
+const int MAXM=1e6+10;
+char a[MAXN];
+char b[MAXM];
 int nxt[MAXN];
-void initkmp(char x[],int m){
-    int i=0,j=nxt[0]=-1;
-    while(i<m){
-        while(j!=-1&&x[i]!=x[j])j=nxt[j];
-        nxt[++i]=++j;
+int f[MAXM];
+int n,m;
+void initkmp(){
+    n=strlen(a);
+    nxt[0]=-1;
+    for(int i=1,j=-1;i<n;i++){
+        while(j>-1&&a[i]!=a[j+1])j=nxt[j];
+        if(a[i]==a[j+1])j++;
+        nxt[i]=j;
     }
 }
-//x:pa y:tx 
-int kmp(char x[],int m,char y[],int n){
-    int i,j,ans;
-    i=j=ans=0;
-    initkmp(x,m);
-    while(i<n){
-        while(j!=-1&&y[i]!=x[j])j=nxt[j];
-        i++,j++;
-        if(j>=m){
-            ans++;
-            j=nxt[j];
-            //pos:i-m
-        }
+int kmp(){
+    initkmp();
+    int res=0;
+    m=strlen(b);
+    for(int i=0,j=-1;i<m;i++){
+        while(j>-1&&(j==(n-1)||b[i]!=a[j+1]))j=nxt[j];
+        if(b[i]==a[j+1])j++;
+        f[i]=j;
+        if(f[i]==n-1)res++;
     }
-    return ans;
+    return res;
 }
+int main(){
+    int T;
+    scanf("%d",&T);
+    while(T--){
+        scanf("%s%s",&a,&b);
+        printf("%d\n",kmp());
+    }
+    return 0;
+}
+   
