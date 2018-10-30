@@ -59,8 +59,9 @@ struct Trie{
             p=nxt[p][x];
             int tmp=p;
             while(tmp!=rt){
+                if(e[tmp]==-1)break;
                 res+=e[tmp];
-                e[tmp]=0;
+                e[tmp]=-1;
                 tmp=f[tmp];
             }
         }
