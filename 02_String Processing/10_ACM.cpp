@@ -44,7 +44,7 @@ struct Trie{
                 if(nxt[p][i]==-1){
                     nxt[p][i]=nxt[f[p]][i];
                 }else{
-                    f[nxt[p][i]]=nxt[f[p]][i];;
+                    f[nxt[p][i]]=nxt[f[p]][i];
                     que.push(nxt[p][i]);
                 }
             }
