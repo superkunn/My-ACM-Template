@@ -1,6 +1,7 @@
-const int MAXN=1e5+10;
+const int MAXN=2e5+10;
 const int INF=0x3f3f3f3f;
 int a[MAXN],sa[MAXN],rk[MAXN],fir[MAXN],sec[MAXN],c[MAXN],h[MAXN];
+int lg[MAXN],g[MAXN][22];
 char str[MAXN];
 int len;
 bool cmp(int i,int j,int k){
@@ -31,41 +32,40 @@ void calh(){
 	for(i=0;i<len;h[rk[i++]]=k)
         for (k?k--:0,j=sa[rk[i]-1];a[i+k]==a[j+k];k++);
 }
-bool check(int mid){
-    int mi=INF;
-    int mx=0;
-    for(int i=1;i<=len;i++){
-        if(h[i]<mid){
-            mi=sa[i];
-            mx=sa[i];
-        }else{
-            mi=min(mi,sa[i]);
-            mx=max(mx,sa[i]);
-            if(mx-mi>=mid)return true;
-        }
+void get_rmq(){
+    lg[1]=0;
+    for(int i=2;i<=len;++i)lg[i]=lg[i>>1]+1;
+    memset(g,0x7f,sizeof(g));
+    rep(i,1,len)g[i][0]=h[i];
+    for(int j=1;j<=lg[len];j++){
+         for(int i=1;i<=len;i++){
+            g[i][j]=min(g[i][j-1],g[i+(1<<(j-1))][j-1]);
+         }
     }
-    return false;
+}
+int query(int x,int y){
+    int w=y-x+1;
+    return min(g[x][lg[w]],g[y-(1<<lg[w])+1][lg[w]]);
+}
+int lcp(int x,int y){
+    int l=min(rk[x],rk[y])+1;
+    int r=max(rk[x],rk[y]);
+    return query(l,r);
 }
 int main(){
-    int n;
-    scanf("%d",&n);
-    rep(i,0,n-1)scanf("%d",&a[i]);
-    if(n==1){
-        puts("0");
-        return 0;
-    }
-    len=n;
+    scanf("%s",str);
+    len=strlen(str);
+    rep(i,0,len-1)a[i]=str[i]-'a'+1;
     a[len]=0;
-    sufarr(len+1,1005);
+    sufarr(len+1,30);
     calh();
-    int l=0,r=n/2,ans;
-    while(l<=r){
-        int mid=(l+r)>>1;
-        if(check(mid)){
-            ans=mid;
-            l=mid+1;
-        }else{
-            r=mid-1;
+    get_rmq();
+    int ans=0;
+    rep(j,1,len){
+        for(int i=1;i+j<=len;i+=j){
+            int w=lcp(i,i+j);
+            ans=max(ans,w/j+1);
+            if(i>=j-w%j)ans=max(ans,lcp(i-j+w%j,i+w%j)/j+1);
         }
     }
     printf("%d",ans);
