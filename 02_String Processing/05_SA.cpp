@@ -1,12 +1,13 @@
-const int MAXN=300010+10;
+const int MAXN=1e5+10;
+const int INF=0x3f3f3f3f;
 int a[MAXN],sa[MAXN],rk[MAXN],fir[MAXN],sec[MAXN],c[MAXN],h[MAXN];
 char str[MAXN];
 int len;
 bool cmp(int i,int j,int k){
     return sec[i]==sec[j]&&sec[i+k]==sec[j+k];
 }
-void sufarr(int n){
-    int i,p,l,m=200;
+void sufarr(int n,int m){
+    int i,p,l;
     rep(i,0,m-1)c[i]=0;
     rep(i,0,n-1)c[rk[i]=a[i]]++;
     rep(i,1,m-1)c[i]+=c[i-1];
@@ -30,14 +31,43 @@ void calh(){
 	for(i=0;i<len;h[rk[i++]]=k)
         for (k?k--:0,j=sa[rk[i]-1];a[i+k]==a[j+k];k++);
 }
+bool check(int mid){
+    int mi=INF;
+    int mx=0;
+    for(int i=1;i<=len;i++){
+        if(h[i]<mid){
+            mi=sa[i];
+            mx=sa[i];
+        }else{
+            mi=min(mi,sa[i]);
+            mx=max(mx,sa[i]);
+            if(mx-mi>=mid)return true;
+        }
+    }
+    return false;
+}
 int main(){
-	scanf("%s",str);
-	len=strlen(str);
-	rep(i,0,len-1)a[i]=str[i];
-	a[len]=0;
-	sufarr(len+1);
-	calh();
-	rep(i,1,len)printf("%d ",sa[i]);puts("");
-	rep(i,1,len)printf("%d ",h[i]);puts("");
+    int n;
+    scanf("%d",&n);
+    rep(i,0,n-1)scanf("%d",&a[i]);
+    if(n==1){
+        puts("0");
+        return 0;
+    }
+    len=n;
+    a[len]=0;
+    sufarr(len+1,1005);
+    calh();
+    int l=0,r=n/2,ans;
+    while(l<=r){
+        int mid=(l+r)>>1;
+        if(check(mid)){
+            ans=mid;
+            l=mid+1;
+        }else{
+            r=mid-1;
+        }
+    }
+    printf("%d",ans);
 	return 0;
 }
