@@ -6,7 +6,7 @@ struct Trie{
     int rt,tot;
     int newnode(){
         tot++;
-        for(int i=0;i<SZ;i++){
+        rep(i,0,SZ-1){
             nxt[tot][i]=-1;
         }
         e[tot]=0;
@@ -19,7 +19,7 @@ struct Trie{
     void add(char *buf){
         int len=strlen(buf);
         int p=rt;
-        for(int i=0;i<len;i++){
+        rep(i,0,len-1){
             int x=buf[i]-'a';
             if(nxt[p][x]==-1)nxt[p][x]=newnode();
             p=nxt[p][x];
@@ -29,7 +29,7 @@ struct Trie{
     void build(){
         queue<int> que;
         f[rt]=rt;
-        for(int i=0;i<SZ;i++){
+        rep(i,0,SZ-1){
             if(nxt[rt][i]==-1){
                 nxt[rt][i]=rt;
             }else{
@@ -40,7 +40,7 @@ struct Trie{
         while(!que.empty()){
             int p=que.front();
             que.pop();
-            for(int i=0;i<SZ;i++){
+            rep(i,0,SZ-1){
                 if(nxt[p][i]==-1){
                     nxt[p][i]=nxt[f[p]][i];
                 }else{
@@ -54,10 +54,17 @@ struct Trie{
         int len=strlen(buf);
         int p=rt;
         int res=0;
-        for(int i=0;i<len;i++){
+        rep(i,0,len-1){
             int x=buf[i]-'a';
             p=nxt[p][x];
             int tmp=p;
+            /*
+            while(tmp!=rt){
+                res+=e[tmp];
+                e[tmp]=0;
+                tmp=f[tmp];
+            }
+            */
             while(tmp!=rt){
                 if(e[tmp]==-1)break;
                 res+=e[tmp];
