@@ -1,62 +1,127 @@
-//poj 3974
-#include<cstdio>
-#include<algorithm>
-#include<cstring>
-using namespace std;
-typedef unsigned long long ull;
-const int MAXN=1e6+10;
-char s[MAXN];
-ull a[MAXN];
-ull b[MAXN];
-ull base[MAXN];
-inline ull H(int i, int j) {
-	return (a[j] - a[i - 1] * base[j - i + 1]);
-}
-inline ull H2(int i, int j) {
-	return (b[i] - b[j + 1] * base[j - i + 1]);
-}
+//cf 1056E
+const int base=2333;
+const int mod0=1e9+7;
+const int mod1=1e9+9;
+struct hash_t{
+    int hash0,hash1;
+    hash_t(int hash0=0,int hash1=0):hash0(hash0),hash1(hash1){}
+    hash_t operator + (const int &x) const{
+        return hash_t((hash0+x)%mod0,(hash1+x)%mod1);
+    }
+    hash_t operator * (const int &x) const{
+        return hash_t(1LL*hash0*x%mod0,1LL*hash1*x%mod1);
+    }
+    hash_t operator - (const hash_t &x) const{
+        return hash_t((hash0+mod0-x.hash0)%mod0,(hash1+mod1-x.hash1)%mod1);
+    }
+    hash_t operator * (const hash_t &x) const{
+        return hash_t(1LL*hash0*x.hash0%mod0,1LL*hash1*x.hash1%mod1);
+    }
+    ll get(){
+        return 1LL*hash0*mod1+hash1;
+    }
+};
 int main(){
-    base[0]=1;
-    for(int i=1;i<MAXN;i++){
-        base[i]=base[i-1]*131;
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    string s,t;
+    cin>>s>>t;
+    int n=s.length();
+    int m=t.length();
+    if(m<n){
+        cout<<0<<endl;
+        return 0;
     }
-    int kase=0;
-    for(;;){
-        scanf("%s",s+1);
-        if(s[1]=='E')break;
-        int len=strlen(s+1);
-        a[0]=b[len+1]=0;
-        for(int i=1;i<=len;i++){
-            a[i]=a[i-1]*131+s[i]-'a';
-        }
-        for(int i=len;i>=1;i--){
-            b[i]=b[i+1]*131+s[i]-'a';
-        }
-        int ans=1;
-        for(int pos=1;pos<=len;pos++){
-            int l=1,r=min(pos-1,len-pos);
-            while(l<=r){
-                int mid=(l+r)>>1;
-                if(H(pos-mid,pos-1)==H2(pos+1,pos+mid)){
-                    ans=max(2*mid+1,ans);
-                    l=mid+1;
+    vector<hash_t> power(m+1);
+    vector<hash_t> hsh(m+1);
+    power[0]=hash_t(1,1);
+    rep(i,0,m-1){
+        power[i+1]=power[i]*base;
+        hsh[i+1]=hsh[i]*base+t[i];
+    }
+    // get hsh [l,r)
+    auto get = [&](int l,int r){
+        return (hsh[r]-hsh[l]*power[r-l]).get();
+    };
+    int cnt0=0;
+    int cnt1=0;
+    for(auto c:s){
+        if(c=='0')cnt0++;
+        else cnt1++;
+    }
+    int ans=0;
+    if(cnt0>cnt1){
+        rep(i,1,m){
+            int r0=i;
+            int r1;
+            ll w=1LL*r0*cnt0;
+            if(w>=m)break;
+            w=m-w;
+            if(w%cnt1!=0)continue;
+            r1=w/cnt1;
+            int now=0;
+            ll hsh0=-1;
+            ll hsh1=-1;
+            bool f=true;
+            rep(j,0,n-1){
+                if(!f)break;
+                if(s[j]=='0'){
+                    if(hsh0==-1){
+                        hsh0=get(now,now+r0);
+                        now+=r0;
+                    }else{
+                        if(now+r0>m||hsh0!=get(now,now+r0))f=false;
+                        now+=r0;
+                    }
                 }else{
-                    r=mid-1;
+                    if(hsh1==-1){
+                        hsh1=get(now,now+r1);
+                        now+=r1;
+                    }else{
+                        if(now+r1>m||hsh1!=get(now,now+r1))f=false;
+                        now+=r1;
+                    }
                 }
             }
-            l=1,r=min(pos-1,len-pos+1);
-            while(l<=r){
-                int mid=(l+r)>>1;
-                if(H(pos-mid,pos-1)==H2(pos,pos+mid-1)){
-                    ans=max(2*mid,ans);
-                    l=mid+1;
+            if(f&&hsh0!=hsh1)ans++;
+        }
+    }else{
+        rep(i,1,m){
+            int r1=i;
+            int r0;
+            ll w=1LL*r1*cnt1;
+            if(w>=m)break;
+            w=m-w;
+            if(w%cnt0!=0)continue;
+            r0=w/cnt0;
+            int now=0;
+            ll hsh0=-1;
+            ll hsh1=-1;
+            bool f=true;
+            rep(j,0,n-1){
+                if(!f)break;
+                if(s[j]=='0'){
+                    if(hsh0==-1){
+                        hsh0=get(now,now+r0);
+                        now+=r0;
+                    }else{
+                        if(now+r0>m||hsh0!=get(now,now+r0))f=false;
+                        now+=r0;
+                    }
                 }else{
-                    r=mid-1;
+                    if(hsh1==-1){
+                        hsh1=get(now,now+r1);
+                        now+=r1;
+                    }else{
+                        if(now+r1>m||hsh1!=get(now,now+r1))f=false;
+                        now+=r1;
+                    }
                 }
             }
+            if(f&&hsh0!=hsh1)ans++;
         }
-        printf("Case %d: ",++kase);
-        printf("%d\n",ans);
     }
+    cout<<ans<<endl;
     return 0;
 }
+
