@@ -1,4 +1,4 @@
-//cf 1056E
+//cf 39 J
 const int base=2333;
 const int mod0=1e9+7;
 const int mod1=1e9+9;
@@ -17,111 +17,47 @@ struct hash_t{
     hash_t operator * (const hash_t &x) const{
         return hash_t(1LL*hash0*x.hash0%mod0,1LL*hash1*x.hash1%mod1);
     }
+    hash_t operator + (const hash_t &x) const{
+        return hash_t((hash0+x.hash0)%mod0,(hash1+x.hash1)%mod1);
+    }
     ll get(){
         return 1LL*hash0*mod1+hash1;
     }
 };
 int main(){
-    ios::sync_with_stdio(false);
-    cin.tie(0);
-    string s,t;
-    cin>>s>>t;
-    int n=s.length();
-    int m=t.length();
-    if(m<n){
-        cout<<0<<endl;
-        return 0;
-    }
-    vector<hash_t> power(m+1);
-    vector<hash_t> hsh(m+1);
+    string s1,s2;
+    cin>>s1>>s2;
+    int n=s1.length();
+    int m=n-1;
+    vector<hash_t> power(n+1);
+    vector<hash_t> hsh(n+1);
     power[0]=hash_t(1,1);
-    rep(i,0,m-1){
+    rep(i,0,n-1){
         power[i+1]=power[i]*base;
-        hsh[i+1]=hsh[i]*base+t[i];
+        hsh[i+1]=hsh[i]*base+s1[i];
     }
-    // get hsh [l,r)
     auto get = [&](int l,int r){
-        return (hsh[r]-hsh[l]*power[r-l]).get();
+        return (hsh[r]-hsh[l-1]*power[r-l+1]);
     };
-    int cnt0=0;
-    int cnt1=0;
-    for(auto c:s){
-        if(c=='0')cnt0++;
-        else cnt1++;
+    hash_t now;
+    rep(i,0,m-1){
+        now=now*base+s2[i];
     }
-    int ans=0;
-    if(cnt0>cnt1){
-        rep(i,1,m){
-            int r0=i;
-            int r1;
-            ll w=1LL*r0*cnt0;
-            if(w>=m)break;
-            w=m-w;
-            if(w%cnt1!=0)continue;
-            r1=w/cnt1;
-            int now=0;
-            ll hsh0=-1;
-            ll hsh1=-1;
-            bool f=true;
-            rep(j,0,n-1){
-                if(!f)break;
-                if(s[j]=='0'){
-                    if(hsh0==-1){
-                        hsh0=get(now,now+r0);
-                        now+=r0;
-                    }else{
-                        if(now+r0>m||hsh0!=get(now,now+r0))f=false;
-                        now+=r0;
-                    }
-                }else{
-                    if(hsh1==-1){
-                        hsh1=get(now,now+r1);
-                        now+=r1;
-                    }else{
-                        if(now+r1>m||hsh1!=get(now,now+r1))f=false;
-                        now+=r1;
-                    }
-                }
-            }
-            if(f&&hsh0!=hsh1)ans++;
+    vi ans;
+    rep(i,1,n){
+        hash_t cur;
+        if(i==0){
+            cur=get(2,n);
+        }else if(i==n){
+            cur=get(1,n-1);
+        }else{
+            cur=get(1,i-1)*power[n-i]+get(i+1,n);
         }
-    }else{
-        rep(i,1,m){
-            int r1=i;
-            int r0;
-            ll w=1LL*r1*cnt1;
-            if(w>=m)break;
-            w=m-w;
-            if(w%cnt0!=0)continue;
-            r0=w/cnt0;
-            int now=0;
-            ll hsh0=-1;
-            ll hsh1=-1;
-            bool f=true;
-            rep(j,0,n-1){
-                if(!f)break;
-                if(s[j]=='0'){
-                    if(hsh0==-1){
-                        hsh0=get(now,now+r0);
-                        now+=r0;
-                    }else{
-                        if(now+r0>m||hsh0!=get(now,now+r0))f=false;
-                        now+=r0;
-                    }
-                }else{
-                    if(hsh1==-1){
-                        hsh1=get(now,now+r1);
-                        now+=r1;
-                    }else{
-                        if(now+r1>m||hsh1!=get(now,now+r1))f=false;
-                        now+=r1;
-                    }
-                }
-            }
-            if(f&&hsh0!=hsh1)ans++;
-        }
+        if(now.get()==cur.get())ans.pb(i);
     }
-    cout<<ans<<endl;
+    cout<<ans.size()<<endl;
+    for(auto x:ans)cout<<x<<" ";
     return 0;
 }
+
 
