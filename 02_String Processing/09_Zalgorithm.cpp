@@ -1,3 +1,4 @@
+//对于字符串a的每个后缀，匹配它与a的第一个后缀的最长公共前缀，复杂度线性
 const int MAXN=2e6+100;
 int z[MAXN];
 char a[MAXN];
