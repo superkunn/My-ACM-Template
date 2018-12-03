@@ -2,7 +2,7 @@
 const int MAXN=2e6+100;
 int z[MAXN];
 char a[MAXN];
-void z_algorithm(char *a,int len){
+void z_alg(char *a,int len){
     z[0]=len;
     for(int i=1,j=1,k;i<len;i=k){
         if(j<i)j=i;
@@ -19,7 +19,7 @@ int main(){
     */
     scanf("%s",a);
     int n=strlen(a);
-    z_algorithm(a,n);
+    z_alg(a,n);
     for(int i=0;i<n;i++){
         printf("%d ",z[i]," \n"[i==n-1]);
     }
