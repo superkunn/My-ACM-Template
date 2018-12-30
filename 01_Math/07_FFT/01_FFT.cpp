@@ -1,82 +1,96 @@
-#include<cstdio>
-#include<iostream>
-#include<cstdlib>
-#include<cmath>
-#include<algorithm>
-#include<cstring>
-#include<complex>
+//hdu 1402 a*b plus
+#include<bits/stdc++.h>
 using namespace std;
-
-typedef complex<double> cd;
-const int MAXN=2094153;
-const double PI=3.14159265358979;
-
-cd a[MAXN],b[MAXN];
-int rev[MAXN];
-void getrev(int bit){
-	for(int i=0;i<(1<<bit);i++){
-		rev[i]=(rev[i>>1]>>1)|((i&1)<<(bit-1));
-	}
+#define rep(i,a,b) for(int i=a;i<=b;i++)
+#define per(i,a,b) for(int i=a;i>=b;i--)
+#define what_is(x) cerr<<#x<<" is "<<x<<endl;
+const double PI=acos(-1.0);
+struct Complex{
+    double x,y;
+    Complex(double _x=0.0,double _y=0.0){
+        x=_x;
+        y=_y;
+    }
+    Complex operator+(const Complex &b)const{
+        return Complex(x+b.x,y+b.y);
+    }
+    Complex operator-(const Complex &b)const{
+        return Complex(x-b.x,y-b.y);
+    }
+    Complex operator*(const Complex &b)const{
+        return Complex(x*b.x-y*b.y,x*b.y+y*b.x);
+    }
+};
+void change(Complex y[],int len){
+    int i,j,k;
+    for(i=1,j=len/2;i<len-1;i++){
+        if(i<j)swap(y[i],y[j]);
+        k=len/2;
+        while(j>=k){
+            j-=k;
+            k/=2;
+        }
+        if(j<k)j+=k;
+    }
 }
-
-void fft(cd* a,int n,int dft){
-	for(int i=0;i<n;i++){
-		if(i<rev[i])swap(a[i],a[rev[i]]);
-	}
-	for(int step=1;step<n;step<<=1){
-		cd wn=exp(cd(0,dft*PI/step));
-		for(int j=0;j<n;j+=step<<1){
-			cd wnk(1,0);
-			for(int k=j;k<j+step;k++){
-				cd x=a[k];
-				cd y=wnk*a[k+step];
-				a[k]=x+y;
-				a[k+step]=x-y;
-				wnk*=wn;
-			}
-		}
-	}
-	if(dft==-1){
-		for(int i=0;i<n;i++)a[i]/=n;
-	}
+void fft(Complex y[],int len,int on){
+    change(y,len);
+    for(int h=2;h<=len;h<<=1){
+        Complex wn(cos(-on*2*PI/h),sin(-on*2*PI/h));
+        for(int j=0;j<len;j+=h){
+            Complex w(1,0);
+            for(int k=j;k<j+h/2;k++){
+                Complex u=y[k];
+                Complex t=w*y[k+h/2];
+                y[k]=u+t;
+                y[k+h/2]=u-t;
+                w=w*wn;
+            }
+        }
+    }
+    if(on==-1){
+        rep(i,0,len-1){
+            y[i].x/=len;
+        }
+    }
 }
-
-int output[MAXN];
-char s1[MAXN],s2[MAXN];
+const int MAXN=2e5+10;
+char str1[MAXN],str2[MAXN];
+Complex x[MAXN],y[MAXN];
+int ans[MAXN];
 int main(){
-	scanf("%s%s",s1,s2);
-	int l1=strlen(s1);
-	int l2=strlen(s2);
-	int bit=1,s=2;
-	for(bit=1;(1<<bit)<l1+l2-1;bit++){
-		s<<=1;
-	}
-	int i;
-	for(i=0;i<l1;i++){
-		a[i]=(double)(s1[l1-i-1]-'0');
-	}
-	for(i=0;i<l2;i++){
-		b[i]=(double)(s2[l2-i-1]-'0');
-	}
-	getrev(bit);
-	//dft
-	fft(a,s,1);
-	fft(b,s,1);
-	for(i=0;i<s;i++)a[i]*=b[i];
-	//idft
-	fft(a,s,-1);
-
-	for(i=0;i<s;i++){
-		output[i]+=(int)(a[i].real()+0.5);
-		output[i+1]+=output[i]/10;
-		output[i]%=10;
-	}
-
-	for(i=l1+l2;!output[i]&&i>=0;i--){}
-	if(i==-1)printf("0");
-	for(;i>=0;i--){
-		printf("%d",output[i]);
-	}
-	puts("");
-	return 0;
+    while(~scanf("%s%s",str1,str2)){
+        int len1=strlen(str1);
+        int len2=strlen(str2);
+        int len=1;
+        for(;len<len1+len2;len<<=1);
+        rep(i,0,len1-1){
+            x[i]=Complex(str1[len1-1-i]-'0',0);
+        }
+        rep(i,len1,len-1){
+            x[i]=Complex(0,0);
+        }
+        rep(i,0,len2-1){
+            y[i]=Complex(str2[len2-1-i]-'0',0);
+        }
+        rep(i,len2,len-1){
+            y[i]=Complex(0,0);
+        }
+        fft(x,len,1);
+        fft(y,len,1);
+        rep(i,0,len-1){
+            x[i]=x[i]*y[i];
+        }
+        fft(x,len,-1);
+        ans[0]=0;
+        rep(i,0,len-1){
+            ans[i]+=(int)(x[i].x+0.5);
+            ans[i+1]=ans[i]/10;
+            ans[i]%=10;
+        }
+        while(ans[len]==0&&len!=0)len--;
+        per(i,len,0)putchar(char('0'+ans[i]));
+        puts("");
+    }
+    return 0;
 }
