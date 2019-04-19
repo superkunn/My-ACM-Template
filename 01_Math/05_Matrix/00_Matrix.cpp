@@ -13,7 +13,7 @@ Matrix operator*(const Matrix& lhs, const Matrix& rhs) {
         for (int j = 0; j < 2; ++j) {
             ret.a[i][j] = 0;
             for (int k = 0; k < 2; ++k) {
-                ret.a[i][j] += lhs.a[i][k] * rhs.a[k][j];
+                ret.a[i][j] += lhs.a[i][k] * rhs.a[k][j]%MOD;
             }
             ret.a[i][j] %= MOD;
         }
